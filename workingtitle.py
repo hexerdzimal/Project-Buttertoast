@@ -3,6 +3,7 @@
 
 print (r"""
 
+         Version: Burnt                                   by Fabian Kozlowski, Stefan Leippe, Matthias Ferstl
         +===================================================================================================+
         |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
         |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
@@ -11,6 +12,8 @@ print (r"""
         |   ██████╔╝╚██████╔╝   ██║      ██║   ███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║███████║   ██║     |
         |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
         +===================================================================================================+
+
+                Hiding things in files since 2024, just like butter that "integrates" in a warm toast.
 
        """)
 
@@ -27,5 +30,7 @@ magicKey = input ("We know you want it too: ")
 if (magicKey == "Buttertoast"):
     print ("Great! So now, lets do some work!")
 else:  
-    print ("Disappointing!")
+    print ("Disappointing!");
+
+input('Press ENTER to exit')
 
