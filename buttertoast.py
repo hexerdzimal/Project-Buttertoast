@@ -1,0 +1,41 @@
+# I had to do something... so here we go - MF (Thought it would be great to sign comments with initials so we could blame each other)
+
+def main ():
+    print (r"""
+
+             Version: Burnt (0.1)                             by Fabian Kozlowski, Stefan Leippe, Matthias Ferstl
+             #Source: https://www.asciiart.eu/text-to-ascii-art
+             +===================================================================================================+
+            |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
+            |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
+            |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
+            |   ██╔══██╗██║   ██║   ██║      ██║   ██╔══╝  ██╔══██╗   ██║   ██║   ██║██╔══██║╚════██║   ██║     |
+            |   ██████╔╝╚██████╔╝   ██║      ██║   ███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║███████║   ██║     |
+            |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
+            +===================================================================================================+
+
+                Hiding things in files since 2024, just like butter that "integrates" in a warm toast.
+
+            """)
+
+
+    print("Open Hub, this is the police! Please state your name:")
+
+    name = input ("Your name: ")
+
+    print ("Thanks for being here with us, " + name + "!" )
+    print ("What is your favourite toast?")
+
+    magicKey = input ("We know you want it too: ")
+
+    if (magicKey == "Buttertoast"):
+        print ("Great! So now, lets do some work!")
+    else:  
+        print ("Disappointing!");
+
+    input('Press ENTER to exit')
+
+
+#Just in case someone wants to use this app as a import, we avoid the main-method to be executed. Will only be executed if it is started directly.
+if __name__ == "__main__":
+    main()
