@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class PluginInterface(ABC):
+class plugin_interface(ABC):
     @abstractmethod
     def run(self):
         pass

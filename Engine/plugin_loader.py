@@ -1,18 +1,22 @@
 import importlib
 import os
 import sys
-from Engine.plugin_Interface import PluginInterface  # Anpassung des Imports
+from Engine.plugin_Interface import plugin_interface
 
 class PluginLoader:
     def __init__(self, directory="plugins"):
-        self.directory = directory
+        # Konvertiere den relativen Pfad zum absoluten Pfad und speichere ihn
+        self.directory = os.path.abspath(directory)
 
     def load_plugins(self):
         loaded_plugins = []
         
+        # Debug-Ausgabe des Plugin-Ordners
+        print(f"[DEBUG] Zugriff auf Plugin-Ordner: {self.directory}")
+        
         # Prüfen, ob der plugins-Ordner existiert
         if not os.path.exists(self.directory):
-            print(f"Plugin-Ordner '{self.directory}' nicht gefunden.")
+            print(f"[ERROR] Plugin-Ordner '{self.directory}' nicht gefunden.")
             return loaded_plugins
         
         # Plugin-Ordner zum Python-Pfad hinzufügen
@@ -29,10 +33,10 @@ class PluginLoader:
                     # Suche nach Klassen, die das Plugin-Interface implementieren
                     for attribute_name in dir(plugin_module):
                         attribute = getattr(plugin_module, attribute_name)
-                        if isinstance(attribute, type) and issubclass(attribute, PluginInterface) and attribute is not PluginInterface:
+                        if isinstance(attribute, type) and issubclass(attribute, plugin_interface) and attribute is not plugin_interface:
                             loaded_plugins.append(attribute())
                 except Exception as e:
-                    print(f"Fehler beim Laden des Plugins {plugin_name}: {e}")
+                    print(f"[ERROR] Fehler beim Laden des Plugins {plugin_name}: {e}")
         
         # Entferne den Plugin-Ordner
         sys.path.pop(0)
