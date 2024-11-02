@@ -1,59 +1,65 @@
 import importlib
 import os
 import sys
-from Engine.plugin_Interface import plugin_Interface
+
 
 class PluginLoader:
     def __init__(self, directory="plugins"):
-        self.directory = directory
-
-    def load_and_run_plugin(self, filename):
-        print(f"[DEBUG] Versuche, das Plugin für die Datei '{filename}' zu laden.")
-
-        # Hole die Dateiendung
+        # Verzeichnis, in dem sich die Plugins befinden
+        self.directory = directory  
+    
+    def get_extension(self, filename):
+        # Extrahiert die Dateiendung
         _, extension = os.path.splitext(filename)
-        extension = extension[1:]  # Entferne den Punkt
-        print(f"[DEBUG] Gefundene Dateiendung: '{extension}'")
-
-        # Baue den Plugin-Namen
-        plugin_name = f"btp_{extension}"
-        print(f"[DEBUG] Plugin-Name: '{plugin_name}'")
-
-        # Listet die Dateien im Plugin-Verzeichnis auf
-        print(f"[DEBUG] Suche nach Plugins im Verzeichnis: '{self.directory}'")
+        return extension[1:]  # Entfernt den Punkt
+    
+    def get_plugin_name(self, extension):
+        # Erstellt den Plugin-Namen basierend auf der Dateiendung
+        return f"btp_{extension}"
+    
+    def load_plugin(self, plugin_name, extension):
+        # Lädt das Plugin-Modul und die zugehörige Klasse basierend auf der Dateiendung
         try:
-            # Zeige alle Dateien im Plugin-Verzeichnis an
-            files = os.listdir(self.directory)
-            print(f"[DEBUG] Vorhandene Dateien im Plugin-Verzeichnis: {files}")
-        except FileNotFoundError:
-            print(f"[ERROR] Das Verzeichnis '{self.directory}' wurde nicht gefunden.")
-            return
-
-        # Füge das Plugin-Verzeichnis zu sys.path hinzu
-        sys.path.insert(0, self.directory)
-
-        try:
-            # Versuche, das Plugin zu importieren
-            print(f"[DEBUG] Versuche, das Plugin '{plugin_name}' zu importieren...")
+            print(f"[DEBUG] Versuche, das Plugin '{plugin_name}' zu importieren und die Klasse zu laden...")
             plugin_module = importlib.import_module(plugin_name)
+            class_name = extension.capitalize()
+            return getattr(plugin_module, class_name)
+        except (ModuleNotFoundError, AttributeError) as e:
+            print(f"[ERROR] Fehler beim Laden des Plugins '{plugin_name}': {e}")
+            return None
 
-            # Dynamisch die Klasse vom Plugin laden
-            class_name = extension.capitalize()  # Nimmt die Dateiendung und macht sie zum Klassennamen
-            plugin_class = getattr(plugin_module, class_name)  # hole die Klasse anhand des Namens
-
-            # Erstelle eine Instanz des Plugins
-            print(f"[DEBUG] Erstelle eine Instanz von '{class_name}'...")
-            plugin_instance = plugin_class()  # Nimm die konkrete Plugin-Klasse
-
-            # Führe die run-Methode des Plugins aus
-            print(f"[DEBUG] Führe die run-Methode von '{class_name}' aus...")
-            plugin_instance.run()  
-            print(f"[DEBUG] '{class_name}' erfolgreich ausgeführt.")
-
-        except ModuleNotFoundError:
-            print(f"[ERROR] Plugin '{plugin_name}' nicht gefunden.")
+    def run_plugin(self, plugin_class, file_data):
+        # Erstellt eine Instanz der Plugin-Klasse und führt die 'run'-Methode aus
+        try:
+            print(f"[DEBUG] Erstelle eine Instanz von '{plugin_class.__name__}'...")
+            plugin_instance = plugin_class()
+            print(f"[DEBUG] Führe die run-Methode von '{plugin_class.__name__}' aus...")
+            plugin_instance.run(file_data)                                                                       #<<<<<<<<<<<< HIER MUSS SPÄTER DER BIN CODE DER DATEIEN (CryptVol und Host) ÜBERGEBEN WERDEN
+            print(f"[DEBUG] '{plugin_class.__name__}' erfolgreich ausgeführt.")
         except Exception as e:
             print(f"[ERROR] Fehler beim Ausführen des Plugins: {e}")
+
+    def load_and_run_plugin(self, filename, file_data):
+        # Hauptmethode zum Laden und Ausführen eines Plugins basierend auf dem Dateityp
+        print(f"[DEBUG] Versuche, das Plugin für die Datei '{filename}' zu laden.")
+        
+        # Hole die Dateiendung und Plugin-Name
+        extension = self.get_extension(filename)
+        plugin_name = self.get_plugin_name(extension)
+        print(f"[DEBUG] Gefundene Dateiendung: '{extension}', Plugin-Name: '{plugin_name}'")
+        
+        # Füge das Plugin-Verzeichnis zu sys.path hinzu
+        sys.path.insert(0, self.directory)
+        
+        try:
+            # Plugin-Klasse laden
+            plugin_class = self.load_plugin(plugin_name, extension)
+            if not plugin_class:
+                return
+
+            # Plugin ausführen
+            self.run_plugin(plugin_class, file_data)
+            
         finally:
-            # Entferne das Plugin-Verzeichnis wieder aus sys.path
+            # Entferne das Plugin-Verzeichnis aus sys.path
             sys.path.pop(0)

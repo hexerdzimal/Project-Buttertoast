@@ -7,11 +7,7 @@ from Engine.plugin_Loader import PluginLoader
 def main():
     # Argumente parsen
     parser = argparse.ArgumentParser(description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file.")
-    parser.add_argument('--vol', required=False, help="The path to the TrueCrypt or VeraCrypt volume.")
-    parser.add_argument('--fil', required=False, help="The path to the file where the volume will be embedded.")
-    parser.add_argument('--out', required=False, help="The path to the output file where the polyglot volume will be saved.")
     parser.add_argument('-gui', action='store_true', help="Launch the graphical user interface.")
-    parser.add_argument('--auto', action='store_true', help="Start in automatic mode.")
     parser.add_argument('-v', '--verbose', action='store_true', help="Enable verbose mode for detailed output.")
     parser.add_argument('--testFile', help="Check a file by extension and run the corresponding plugin.")
 
@@ -35,16 +31,8 @@ def main():
 
         # Erstelle eine Instanz des PluginLoaders und führe das Plugin aus
         plugin_loader = PluginLoader()
-        plugin_loader.load_and_run_plugin(args.testFile)
+        plugin_loader.load_and_run_plugin(args.testFile, file_data)
         return
-
-    # Überprüfe, ob der automatische Modus aktiviert ist
-    if args.auto:
-
-        if not args.vol or not args.fil or not args.out:
-            print("Im automatischen Modus müssen die Parameter --vol, --fil und --out angegeben werden.")
-            sys.exit(1)
-
 
     else:
         shell_interface = SILoader()
