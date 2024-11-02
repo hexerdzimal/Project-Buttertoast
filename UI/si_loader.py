@@ -1,4 +1,4 @@
-from Engine.plugin_loader import PluginLoader
+from Engine.plugin_Loader import PluginLoader
 
 class SILoader:
     def __init__(self):
