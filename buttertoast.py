@@ -4,6 +4,8 @@ from UI.gui_Loader import GUILoader
 from UI.si_Loader import SILoader
 from Engine.plugin_Loader import PluginLoader
 
+image_path = "BuTo1.png"
+
 def main():
     # Argumente parsen
     parser = argparse.ArgumentParser(description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file.")
@@ -15,7 +17,7 @@ def main():
     args = parser.parse_args()
 
     if args.gui:
-        gui_loader = GUILoader()
+        gui_loader = GUILoader(image_path)
         gui_loader.start_gui()
         return
 
@@ -39,4 +41,5 @@ def main():
         shell_interface.start_txt()
 
 if __name__ == "__main__":
+    
     main()
