@@ -6,14 +6,15 @@ from Engine.plugin_Loader import PluginLoader
 
 def main():
     # Argumente parsen
-    parser = argparse.ArgumentParser(description="Verstecke eine Datei in einem TrueCrypt oder VeraCrypt Volume.")
-    parser.add_argument('--vol', required=False, help="Der Pfad zum TrueCrypt oder VeraCrypt Volume.")
-    parser.add_argument('--fil', required=False, help="Der Pfad zur Datei, in der das Volume versteckt werden soll.")
-    parser.add_argument('--out', required=False, help="Der Pfad zur Zieldatei, in die das versteckte Volume gespeichert wird.")
-    parser.add_argument('-gui', action='store_true', help="Starte die grafische Benutzeroberfläche.")
-    parser.add_argument('--auto', action='store_true', help="Starte im automatischen Modus.")
-    parser.add_argument('-v', '--verbose', action='store_true', help="Aktiviere den Verbose-Modus für detailliertere Ausgaben.")
-    parser.add_argument('--testFile', help="Prüfe eine Datei auf ihre Endung und führe das entsprechende Plugin aus.")
+    parser = argparse.ArgumentParser(description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file.")
+    parser.add_argument('--vol', required=False, help="The path to the TrueCrypt or VeraCrypt volume.")
+    parser.add_argument('--fil', required=False, help="The path to the file where the volume will be embedded.")
+    parser.add_argument('--out', required=False, help="The path to the output file where the polyglot volume will be saved.")
+    parser.add_argument('-gui', action='store_true', help="Launch the graphical user interface.")
+    parser.add_argument('--auto', action='store_true', help="Start in automatic mode.")
+    parser.add_argument('-v', '--verbose', action='store_true', help="Enable verbose mode for detailed output.")
+    parser.add_argument('--testFile', help="Check a file by extension and run the corresponding plugin.")
+
 
     args = parser.parse_args()
 
@@ -39,13 +40,11 @@ def main():
 
     # Überprüfe, ob der automatische Modus aktiviert ist
     if args.auto:
-        # Stelle sicher, dass alle erforderlichen Parameter übergeben werden
+
         if not args.vol or not args.fil or not args.out:
             print("Im automatischen Modus müssen die Parameter --vol, --fil und --out angegeben werden.")
             sys.exit(1)
 
-        # Hier kannst du die Logik für das Verstecken des Volumes implementieren
-        # Füge hier weitere verbose Ausgaben nach Bedarf hinzu
 
     else:
         shell_interface = SILoader()
