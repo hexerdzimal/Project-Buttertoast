@@ -17,28 +17,6 @@ class PluginLoader:
         # Erstellt den Plugin-Namen basierend auf der Dateiendung
         return f"btp_{extension}"
     
-    def load_plugin(self, plugin_name, extension):
-        # Lädt das Plugin-Modul und die zugehörige Klasse basierend auf der Dateiendung
-        try:
-            print(f"[DEBUG] Versuche, das Plugin '{plugin_name}' zu importieren und die Klasse zu laden...")
-            plugin_module = importlib.import_module(plugin_name)
-            class_name = extension.capitalize()
-            return getattr(plugin_module, class_name)
-        except (ModuleNotFoundError, AttributeError) as e:
-            print(f"[ERROR] Fehler beim Laden des Plugins '{plugin_name}': {e}")
-            return None
-
-    def run_plugin(self, plugin_class, file_data):
-        # Erstellt eine Instanz der Plugin-Klasse und führt die 'run'-Methode aus
-        try:
-            print(f"[DEBUG] Erstelle eine Instanz von '{plugin_class.__name__}'...")
-            plugin_instance = plugin_class()
-            print(f"[DEBUG] Führe die run-Methode von '{plugin_class.__name__}' aus...")
-            plugin_instance.run(file_data)                                                                       #<<<<<<<<<<<< HIER MUSS SPÄTER DER BIN CODE DER DATEIEN (CryptVol und Host) ÜBERGEBEN WERDEN
-            print(f"[DEBUG] '{plugin_class.__name__}' erfolgreich ausgeführt.")
-        except Exception as e:
-            print(f"[ERROR] Fehler beim Ausführen des Plugins: {e}")
-
     def load_and_run_plugin(self, filename, file_data):
         # Hauptmethode zum Laden und Ausführen eines Plugins basierend auf dem Dateityp
         print(f"[DEBUG] Versuche, das Plugin für die Datei '{filename}' zu laden.")
@@ -52,14 +30,23 @@ class PluginLoader:
         sys.path.insert(0, self.directory)
         
         try:
-            # Plugin-Klasse laden
-            plugin_class = self.load_plugin(plugin_name, extension)
-            if not plugin_class:
-                return
-
-            # Plugin ausführen
-            self.run_plugin(plugin_class, file_data)
+            # Versuche, das Plugin-Modul zu importieren
+            print(f"[DEBUG] Versuche, das Plugin '{plugin_name}' zu importieren und die Klasse zu laden...")
+            plugin_module = importlib.import_module(plugin_name)
+            class_name = extension.capitalize()
+            plugin_class = getattr(plugin_module, class_name)
             
+            # Erstelle eine Instanz der Plugin-Klasse und führe die 'run'-Methode aus
+            print(f"[DEBUG] Erstelle eine Instanz von '{plugin_class.__name__}'...")
+            plugin_instance = plugin_class()
+            print(f"[DEBUG] Führe die run-Methode von '{plugin_class.__name__}' aus...")
+            plugin_instance.run(file_data)  # Binärcode der Datei wird hier übergeben, SPÄTER MUSS AUCH BINÄR DES CONTAINERS ÜBERGEBEN WERDEN
+            print(f"[DEBUG] '{plugin_class.__name__}' erfolgreich ausgeführt.")
+            
+        except (ModuleNotFoundError, AttributeError) as e:
+            print(f"[ERROR] Fehler beim Laden des Plugins '{plugin_name}': {e}")
+        except Exception as e:
+            print(f"[ERROR] Fehler beim Ausführen des Plugins: {e}")
         finally:
             # Entferne das Plugin-Verzeichnis aus sys.path
             sys.path.pop(0)
