@@ -1,5 +1,0 @@
-from Engine.plugin_Interface import plugin_Interface
-
-class Plugin1(plugin_Interface):
-    def run(self):
-        print("Running Plugin 1")

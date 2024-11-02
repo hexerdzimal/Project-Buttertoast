@@ -1,5 +1,3 @@
-# I had to do something... so here we go - MF (Thought it would be great to sign comments with initials so we could blame each other)
-
 import sys
 import argparse
 from UI.gui_Loader import GUILoader
@@ -25,6 +23,15 @@ def main():
         return
 
     if args.testFile:
+        # Lese die Datei ein, die geprüft werden soll
+        try:
+            with open(args.testFile, 'rb') as file:
+                file_data = file.read()  # Lese den Inhalt der Datei
+                print(f"[DEBUG] Datei '{args.testFile}' erfolgreich eingelesen. Größe: {len(file_data)} Bytes")
+        except FileNotFoundError:
+            print(f"[ERROR] Die Datei '{args.testFile}' wurde nicht gefunden.")
+            sys.exit(1)
+
         # Erstelle eine Instanz des PluginLoaders und führe das Plugin aus
         plugin_loader = PluginLoader()
         plugin_loader.load_and_run_plugin(args.testFile)
