@@ -1,8 +1,8 @@
 import sys
 import argparse
-from UI.gui_Loader import GUILoader
-from UI.si_Loader import SILoader
-from Engine.plugin_Loader import PluginLoader
+from UI.gui_loader import GUILoader
+from UI.si_loader import SILoader
+from Engine.plugin_loader import PluginLoader
 
 image_path = "BuTo1.png"
 
