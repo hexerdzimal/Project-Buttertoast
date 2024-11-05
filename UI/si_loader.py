@@ -3,22 +3,28 @@ from Engine.plugin_Loader import PluginLoader
 class SILoader:
     def __init__(self):
         self.plugin_loader = PluginLoader()
+        
 
     def start_txt(self):
 
         print (r"""
 
-             Version: Burnt (0.1)                             by Fabian Kozlowski, Stefan Leippe, Matthias Ferstl
+               
+                 
              +===================================================================================================+
+            |                                                                         Version: 0.1 (burnt) 2024 |
             |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
             |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
             |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
             |   ██╔══██╗██║   ██║   ██║      ██║   ██╔══╝  ██╔══██╗   ██║   ██║   ██║██╔══██║╚════██║   ██║     |
             |   ██████╔╝╚██████╔╝   ██║      ██║   ███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║███████║   ██║     |
             |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
+            |                                    The melting pot of polyglot.                                   |
             +===================================================================================================+
+                                            by Fabian Kozlowski, Stefan Leippe, Malte Muthesius, Matthias Ferstl
+               
 
-                Hiding things in files since 2024, just like butter that "integrates" in a warm toast.
+                            
 
             """)
 
@@ -36,12 +42,11 @@ class SILoader:
             print("Disappointing!")
         
         while True:
-            flow = input('Enter "1" to load plugins and execute their code, enter "2" to quit: ')
+            flow = input('Enter "1" to list plugins, enter "2" to quit: ')
             if flow == "1":
-                print("Plugins loaded. Executing code.")
-                plugins = self.plugin_loader.load_plugins()
-                for plugin in plugins:
-                    plugin.run()
+                print("Listing plugins.")
+                self.plugin_loader.list_plugins()  # Plugins abrufen
+                
                 break
             elif flow == "2":
                 print("Quitting program.")

@@ -33,7 +33,7 @@ def main():
 
         # Erstelle eine Instanz des PluginLoaders und führe das Plugin aus
         plugin_loader = PluginLoader()
-        plugin_loader.load_and_run_plugin(args.testFile, file_data)
+        plugin_loader.test_plugin(args.testFile)
         return
 
     else:
