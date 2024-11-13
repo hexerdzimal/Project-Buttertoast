@@ -69,7 +69,7 @@ class Cryptomat:
         cipher = Cipher(algorithms.AES(aes_key1 + aes_key2), modes.XTS(TWEAK))
         decryptor = cipher.decryptor()
 
-        # Entschlüsseln des Volumens (ohne den Salt)
+        # Entschlüsseln des Volumens (ohne Salt)
         decrypted_data = decryptor.update(encrypted_volume[64:]) + decryptor.finalize()
 
         # Überprüfung, ob die Entschlüsselung erfolgreich war und ein ASCII 'TRUE' erzeugt wurde
@@ -77,7 +77,7 @@ class Cryptomat:
             print("Fehler: Magic Number 'TRUE' nicht gefunden. Entschlüsselung fehlgeschlagen.")
             sys.exit(1)
 
-        # Füge den Salt wieder hinzu und gebe die entschlüsselten Daten zurück
+        # Gebe die entschlüsselten Daten zurück
         return salt + decrypted_data
 
     # Funktion zur Verschlüsselung eines entschlüsselten Volumens
@@ -92,10 +92,10 @@ class Cryptomat:
         cipher = Cipher(algorithms.AES(aes_key1 + aes_key2), modes.XTS(TWEAK))
         encryptor = cipher.encryptor()
 
-        # Verschlüssele das Volume (ohne den Salt)
+        # Verschlüssele das Volume (ohne Salt)
         encrypted_data = encryptor.update(decrypted_volume[64:]) + encryptor.finalize()
 
-        # Füge den Salt wieder hinzu und gebe die verschlüsselten Daten zurück
+        # Gebe die verschlüsselten Daten zurück
         return salt + encrypted_data
 
 
