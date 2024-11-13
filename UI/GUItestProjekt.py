@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 from cryptography.hazmat.primitives import hashes
@@ -90,7 +91,8 @@ root.title("Entschlüsselungstool")
 root.geometry("700x700")
 
 # Hintergrundbild laden und skalieren
-image_path = "C:/Users/malte/Desktop/Sicherheit/BuTo1.png"
+image_path = os.path.join(os.path.dirname(__file__), "..", "BuTo1.png")
+
 img = Image.open(image_path)
 img = img.resize((700, 700), Image.LANCZOS)
 background_image = ImageTk.PhotoImage(img)
