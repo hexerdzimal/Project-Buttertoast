@@ -29,7 +29,7 @@ class Cryptomat:
     #       @encrypted_polyglot, das modifizierte TrueCrypt-Volume welches den manipulierten SALT beinhaltet samt Host Datei
     #       @passphrase, das Passwort des TrueCrypt-Volumes
     # Output:
-    #       @re_encrypted_volume_2, das modifizierte neu-verschlüsselte TrueCrypt-Volume
+    #       @re_encrypted_buttertoast, das modifizierte neu-verschlüsselte TrueCrypt-Volume
     def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> bytes:
         # Entschlüsselung des TC-Volumes und der "polyglotten" Datei
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
