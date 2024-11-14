@@ -31,19 +31,38 @@ class Cryptomat:
     # Output:
     #       @re_encrypted_buttertoast, das modifizierte neu-verschlüsselte TrueCrypt-Volume
     def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> bytes:
-        # Entschlüsselung des TC-Volumes und der "polyglotten" Datei
+        # Entschlüsselung des TC-Volumes
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
-        decrypted_polyglot = self.__decrypt_volume(encrypted_polyglot, passphrase)
 
-        # Erstellung und Verschlüsselung der polyglotten Datei, dem Buttertoast
-        decrypted_buttertoast = decrypted_polyglot[:64] + decrypted_volume[64:512] + decrypted_polyglot[512:]     # Die ersten 64 Byte kommen aus dem Polyglott, die nächsten 448 Bytes aus dem TC Volume (die Header-Daten), der Rest aus dem Polyglot
-        encrypted_buttertoast = self.__encrypt_volume(decrypted_buttertoast, passphrase)
+        # Neu-Verschlüsselung des TC-Volumes mit dem Daten aus dem verschlüsselten Polyglott (Host SALT)
+        salt_poly = self.__salty(encrypted_polyglot)
+        re_encrypted_volume = self.__encrypt_volume(salt_poly, decrypted_volume, passphrase)
 
-        #####
+        # Erstellung Buttertoast durch Kombination aus re_encrypted_volume und encrypted_polyglot
+        encrypted_buttertoast = re_encrypted_volume[:512] + encrypted_polyglot[512:]
+
         return encrypted_buttertoast
+
+    # Funktion gibt den SALT zurück
+    def __salty(self, encrypted_volume) -> bytes:
+        # -----------------------WORKAROUND---------------------------------------
+        # WORKAROUND: Bei dem WAV skript liegt ein bytearray an! => Konvertierung!!!!
+        #if isinstance(encrypted_volume, bytearray):
+        #    encrypted_volume = bytes(encrypted_volume)
+        #---------------------------------------------------------------------------
+
+        so_salty = encrypted_volume[:64]
+        # Error handling für den Fall das so_salty nicht in bytes vorliegt
+        if not isinstance(so_salty, bytes):
+            raise ValueError("SALT muss vom Typ 'bytes' sein.")
+        return so_salty
 
     # Funktion zur Schlüsselableitung für AES
     def __derive_aes_keys(self, salt: bytes, passphrase: str) -> tuple:
+        # Error handling prüfe, ob der SALT tatsächlich in bytes vorliegt
+        if not isinstance(salt, bytes):
+            raise TypeError("SALT muss vom Typ 'bytes' sein um Schlüssel ableiten zu können.")
+
         iterations = 1000
         hash_algo = hashes.SHA512()
         kdf = PBKDF2HMAC(
@@ -81,12 +100,12 @@ class Cryptomat:
         return salt + decrypted_data
 
     # Funktion zur Verschlüsselung eines entschlüsselten Volumens
-    def __encrypt_volume(self, decrypted_volume: bytes, passphrase: str) -> bytes:
+    def __encrypt_volume(self, salty: bytes, decrypted_volume: bytes, passphrase: str) -> bytes:
         # Extrahiere den Salt aus den ersten 64 Bytes des entschlüsselten Volumens
-        salt = decrypted_volume[:64]
+        #salt = decrypted_volume[:64]
 
         # Erzeuge die AES-Schlüssel mit dem Salt und der Passphrase
-        aes_key1, aes_key2 = self.__derive_aes_keys(salt, passphrase)
+        aes_key1, aes_key2 = self.__derive_aes_keys(salty, passphrase)
 
         # Initialisiere den AES-XTS Cipher zum Verschlüsseln
         cipher = Cipher(algorithms.AES(aes_key1 + aes_key2), modes.XTS(TWEAK))
@@ -96,7 +115,7 @@ class Cryptomat:
         encrypted_data = encryptor.update(decrypted_volume[64:]) + encryptor.finalize()
 
         # Gebe die verschlüsselten Daten zurück
-        return salt + encrypted_data
+        return salty + encrypted_data
 
 
 
