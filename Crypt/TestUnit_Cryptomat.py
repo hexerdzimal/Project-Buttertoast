@@ -5,6 +5,7 @@ from plugins.Test_btp_png import Png  # Importing Png class
 from plugins.Test_btp_wav import Wav  # Importing Wav class
 
 # Kommentar 14.11: PNG funktioniert! WAV funktioniert nicht!
+# Bei WAV scheinen die ersten 64 Bytes nicht korrekt übernommen zu werden?!
 
 def select_file(prompt):
     root = tk.Tk()

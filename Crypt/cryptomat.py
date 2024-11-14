@@ -35,7 +35,7 @@ class Cryptomat:
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
 
         # Neu-Verschlüsselung des TC-Volumes mit dem Daten aus dem verschlüsselten Polyglott (Host SALT)
-        salt_poly = self.__salty(encrypted_polyglot)
+        salt_poly = self.__salty(encrypted_polyglot) # 64 Bytes
         re_encrypted_volume = self.__encrypt_volume(salt_poly, decrypted_volume, passphrase)
 
         # Erstellung Buttertoast durch Kombination aus re_encrypted_volume und encrypted_polyglot
