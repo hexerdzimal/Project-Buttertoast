@@ -39,6 +39,8 @@ class Cryptomat:
         re_encrypted_volume = self.__encrypt_volume(salt_poly, decrypted_volume, passphrase)
 
         # Erstellung Buttertoast durch Kombination aus re_encrypted_volume und encrypted_polyglot
+        # :512, darin sind der manipulierte SALT und der TrueCrypt-Header (neu verschlüsselt mit dem manipulierten SALT),
+        # 512:, darin befindet sic - in genannter Reihenfolge - das TC-Volume (die eigentliche Daten) gefolgt von den Host-Daten
         encrypted_buttertoast = re_encrypted_volume[:512] + encrypted_polyglot[512:]
 
         return encrypted_buttertoast
@@ -46,9 +48,9 @@ class Cryptomat:
     # Funktion gibt den SALT zurück
     def __salty(self, encrypted_volume) -> bytes:
         # -----------------------WORKAROUND---------------------------------------
-        # WORKAROUND: Bei dem WAV skript liegt ein bytearray an! => Konvertierung!!!!
-        #if isinstance(encrypted_volume, bytearray):
-        #    encrypted_volume = bytes(encrypted_volume)
+        # WORKAROUND: Bei dem WAV (gefixed von Stefan) und TIFF skript liegt ein bytearray an! => Konvertierung!!!!
+        if isinstance(encrypted_volume, bytearray):
+            encrypted_volume = bytes(encrypted_volume)
         #---------------------------------------------------------------------------
 
         so_salty = encrypted_volume[:64]

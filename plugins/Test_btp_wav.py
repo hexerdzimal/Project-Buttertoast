@@ -1,27 +1,36 @@
 from Engine.plugin_Interface import plugin_Interface
 import struct
-# Kommentar Fabian: Skript angepasst so dass ich tatsächlich auch BYTES erhalte
+
+# Das ist die aktualisierte Version mit dem Bugfix
 class Wav(plugin_Interface):
     def run(self, truecrypt, wav_host):
-        # Die Größe des Volume ermitteln
-        volume_size = len(truecrypt)
+        # WAV parts
+        riff_header = wav_host[:4]
+        file_size_bytes = wav_host[4:8]
+        rest_of_header = wav_host[8:28]
+        rest_of_data = wav_host[28:]
 
-        # Aktuelle Host-Dateigröße aus den Bytes 4-7 lesen und um volume_size erhöhen
-        wav_host_size = struct.unpack_from('>I', wav_host, 4)[0]  # '>I' steht für Big-Endian 32-Bit Integer
-        new_host_size = wav_host_size + volume_size
+        # TrueCrypt parts
+        chunk_data = truecrypt[36:]
+        chunk_id = 'INFO'
+        chunk_id = chunk_id.ljust(4)[:4]  # ID padding
+        chunk_size = len(chunk_data)
 
-        # Die neue Größe in den Header (Bytes 4-7) schreiben
-        updated_host_data = bytearray(wav_host)  # In ein veränderbares bytearray konvertieren
-        struct.pack_into('>I', updated_host_data, 4, new_host_size)
+        # make custom chunk
+        custom_chunk = struct.pack(f'4sI{chunk_size}s', chunk_id.encode('ascii'), chunk_size, chunk_data)
 
-        # Host-Datei bis zum Einfügepunkt (Byte 35) und ab Einfügepunkt trennen
-        before_insert = bytes(updated_host_data[:35])  # Convert to bytes here
-        after_insert = bytes(updated_host_data[35:])  # Convert to bytes here
+        # read file size, add crypt size
+        current_file_size = struct.unpack('<I', file_size_bytes)[0]  # '<I' for Little-Endian 32-Bit Integer
+        new_file_size = current_file_size + len(custom_chunk)
 
-        updated_guest_data = bytes(truecrypt[35:])  # Convert guest data to bytes if necessary
+        # write back new file size
+        new_file_size_bytes = struct.pack('<I', new_file_size)
 
-        # Zusammensetzen der neuen Datei: Vor dem Einfügepunkt + Guest-Datei + Rest der Host-Datei
-        polyglott = before_insert + updated_guest_data + after_insert
+        # combine data in wav structure
+        # Bytes 0-3 riff header
+        # Bytes 4-7 new file size bytes
+        # Bytes 8-27 der restliche WAV header
+        # Bytes 28-64 chunk data
+        polyglott = riff_header + new_file_size_bytes + rest_of_header + custom_chunk + rest_of_data
 
-        # Ensure polyglott is of type bytes
-        return bytes(polyglott)
+        return polyglott

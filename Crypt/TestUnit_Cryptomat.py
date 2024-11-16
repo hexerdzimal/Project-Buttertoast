@@ -3,9 +3,9 @@ from tkinter import filedialog, simpledialog, messagebox
 from cryptomat import Cryptomat
 from plugins.Test_btp_png import Png  # Importing Png class
 from plugins.Test_btp_wav import Wav  # Importing Wav class
+from plugins.Test_btp_tiff import Tiff  # Importing Tiff class
 
-# Kommentar 14.11: PNG funktioniert! WAV funktioniert nicht!
-# Bei WAV scheinen die ersten 64 Bytes nicht korrekt übernommen zu werden?!
+# Kommentar 16.11: PNG funzt, WAV nach wie vor nicht, TIFF funktioniert ebenfalls nicht, funktioniert nicht d.h. man kann das Polyglott mounten aber die Host-Datei Funktionalität ist nicht gegeben!
 
 def select_file(prompt):
     root = tk.Tk()
@@ -49,10 +49,13 @@ def main():
         print("Passwort nicht eingegeben. Abbruch.")
         return
 
-    # Ask the user to choose between PNG and WAV polyglot creation
+    # Ask the user to choose between PNG, WAV, or TIFF polyglot creation
     root = tk.Tk()
     root.withdraw()
-    file_type = simpledialog.askstring("Dateityp auswählen", "Geben Sie den Dateityp für die Polyglot-Erstellung ein (png/wav):")
+    file_type = simpledialog.askstring(
+        "Dateityp auswählen",
+        "Geben Sie den Dateityp für die Polyglot-Erstellung ein (png/wav/tiff):"
+    )
     root.destroy()
 
     if file_type.lower() == "png":
@@ -90,6 +93,24 @@ def main():
         # Create polyglot content using the Wav plugin
         wav_plugin = Wav()
         polyglot_data = wav_plugin.run(tc_volume_data, host_data)
+
+    elif file_type.lower() == "tiff":
+        # TIFF polyglot creation
+        host_path = select_file("Bitte wählen Sie die TIFF-Host-Datei für die Polyglot-Erstellung aus.")
+        if not host_path:
+            print("TIFF-Host-Datei nicht ausgewählt. Abbruch.")
+            return
+        host_data = load_binary_file(host_path)
+
+        # Set output file extension to .tiff
+        polyglot_output_path = save_file_dialog("Speicherort für die Polyglot-Datei auswählen", default_extension=".tiff")
+        if not polyglot_output_path:
+            print("Kein Speicherort für die Polyglot-Datei ausgewählt. Abbruch.")
+            return
+
+        # Create polyglot content using the Tiff plugin
+        tiff_plugin = Tiff()
+        polyglot_data = tiff_plugin.run(tc_volume_data, host_data)
 
     else:
         print("Ungültiger Dateityp. Abbruch.")
