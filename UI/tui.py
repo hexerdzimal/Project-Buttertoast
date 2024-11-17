@@ -1,6 +1,6 @@
 import os
 
-from BaseUI import BaseUI
+from UI.BaseUI import BaseUI
 
 
 class TUI(BaseUI):
