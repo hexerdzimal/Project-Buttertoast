@@ -18,7 +18,7 @@ class PluginLoader:
         return f"btp_{extension}"
     
     def load_and_run_plugin(self, filename, volume, host):
-        """Lädt und führt das Plugin aus."""
+        """Lädt und führt das Plugin aus, wobei 'volume' und 'host' Bytecode-Daten sind."""
         print(f"[DEBUG] Versuche, das Plugin für die Datei '{filename}' zu laden.")
         
         # Hole die Dateiendung und den Plugin-Namen
@@ -40,8 +40,10 @@ class PluginLoader:
             print(f"[DEBUG] Erstelle eine Instanz von '{plugin_class.__name__}'...")
             plugin_instance = plugin_class()
             print(f"[DEBUG] Führe die run-Methode von '{plugin_class.__name__}' aus...")
-            plugin_instance.run(host, volume)  # host und volume als binäre Daten weitergeben
+            poly_byte = plugin_instance.run(host, volume)  # 'host' und 'volume' als Bytecode-Daten übergeben
             print(f"[DEBUG] '{plugin_class.__name__}' erfolgreich ausgeführt.")
+
+            return poly_byte
             
         except (ModuleNotFoundError, AttributeError) as e:
             print(f"[ERROR] Fehler beim Laden des Plugins '{plugin_name}': {e}")
