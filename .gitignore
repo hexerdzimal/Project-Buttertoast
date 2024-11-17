@@ -1,2 +1,3 @@
 # Ignore all .idea folders
 .idea/
+.venv/
