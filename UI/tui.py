@@ -43,18 +43,38 @@ class TUI(BaseUI):
         """
         Startet die TUI und bleibt aktiv.
         """
+        print (r"""
+
+            
+                
+        +===================================================================================================+
+        |                                                                         Version: 0.1 (burnt) 2024 |
+        |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
+        |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
+        |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
+        |   ██╔══██╗██║   ██║   ██║      ██║   ██╔══╝  ██╔══██╗   ██║   ██║   ██║██╔══██║╚════██║   ██║     |
+        |   ██████╔╝╚██████╔╝   ██║      ██║   ███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║███████║   ██║     |
+        |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
+        |                                    The melting pot of polyglot.                                   |
+        +===================================================================================================+
+                                        by Fabian Kozlowski, Stefan Leippe, Malte Muthesius, Matthias Ferstl
+            
+
+                        
+
+             """)     
         while True:
-            file1 = self.open_file("Eingabedatei 1")
-            file2 = self.open_file("Eingabedatei 2")
+            host = self.open_file("Host")
+            guest = self.open_file("Guest")
             save_path = self.save_file()
             user_string = self.enter_string("Geben Sie einen beliebigen Text ein")
 
-            if not file1 or not file2 or not save_path or not user_string:
+            if not host or not guest or not save_path or not user_string:
                 print("Fehler: Alle Eingaben müssen gemacht werden!")
                 continue  # Wiederhole den Vorgang, anstatt die TUI zu schließen
 
             # Übergabe an den Controller
-            self.controller.handle_user_input(file1, file2, user_string, save_path)
+            self.controller.handle_user_input(host, guest, user_string, save_path)
 
             # Optional: Exit-Mechanismus (falls gewünscht)
             exit_input = self.enter_string("Geben Sie 'exit' ein, um die Anwendung zu beenden")
