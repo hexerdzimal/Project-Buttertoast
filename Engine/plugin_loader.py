@@ -17,11 +17,11 @@ class PluginLoader:
         # Erstellt den Plugin-Namen basierend auf der Dateiendung
         return f"btp_{extension}"
     
-    def load_and_run_plugin(self, filename, file_data):
-        # Hauptmethode zum Laden und Ausführen eines Plugins basierend auf dem Dateityp
+    def load_and_run_plugin(self, filename, volume, host):
+        """Lädt und führt das Plugin aus."""
         print(f"[DEBUG] Versuche, das Plugin für die Datei '{filename}' zu laden.")
         
-        # Hole die Dateiendung und Plugin-Name
+        # Hole die Dateiendung und den Plugin-Namen
         extension = self.get_extension(filename)
         plugin_name = self.get_plugin_name(extension)
         print(f"[DEBUG] Gefundene Dateiendung: '{extension}', Plugin-Name: '{plugin_name}'")
@@ -40,7 +40,7 @@ class PluginLoader:
             print(f"[DEBUG] Erstelle eine Instanz von '{plugin_class.__name__}'...")
             plugin_instance = plugin_class()
             print(f"[DEBUG] Führe die run-Methode von '{plugin_class.__name__}' aus...")
-            plugin_instance.run(file_data)  # Binärcode der Datei wird hier übergeben, SPÄTER MUSS AUCH BINÄR DES CONTAINERS ÜBERGEBEN WERDEN
+            plugin_instance.run(host, volume)  # host und volume als binäre Daten weitergeben
             print(f"[DEBUG] '{plugin_class.__name__}' erfolgreich ausgeführt.")
             
         except (ModuleNotFoundError, AttributeError) as e:

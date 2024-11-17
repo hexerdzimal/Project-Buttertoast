@@ -1,28 +1,79 @@
 import sys
+import json
 import argparse
-from UI.gui_Loader import GUILoader
-from UI.si_Loader import SILoader
-from Engine.plugin_Loader import PluginLoader
+from Engine.engine import Engine
 
-image_path = "BuTo1.png"
+
+
+def load_config(config_file='config.json'):
+    
+    # Lädt die Konfiguration aus der angegebenen JSON-Datei.
+    
+    try:
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+        return config
+    except FileNotFoundError:
+        print(f"[ERROR] Die Konfigurationsdatei '{config_file}' wurde nicht gefunden.")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print("[ERROR] Fehler beim Laden der JSON-Konfigurationsdatei.")
+        sys.exit(1)
+
+
+
+
+def save_config(config, config_file='config.json'):
+    
+    # Speichert die geänderte Konfiguration in der JSON-Datei.
+    
+    try:
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=4)
+        print(f"[INFO] Konfiguration erfolgreich gespeichert in '{config_file}'.")
+    except Exception as e:
+        print(f"[ERROR] Fehler beim Speichern der Konfigurationsdatei: {e}")
+        sys.exit(1)
+
+
+
+
+def parse_arguments():
+    
+    # Parst die Kommandozeilenargumente und gibt ein Namespace-Objekt mit den Werten zurück.
+    
+    parser = argparse.ArgumentParser(description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file.")
+
+    parser.add_argument('--testFile', help="Check a file by extension and run the corresponding plugin.")
+    parser.add_argument('--changeui', '-cui', action='store_true', help="Toggle the GUI setting in the configuration.")
+    parser.add_argument('--changeverbose', '-cv', action='store_true', help="Toggle the verbose setting in the configuration.")
+
+    return parser.parse_args()
+
+
+
 
 def main():
+    # Konfiguration laden
+    config = load_config()
+
     # Argumente parsen
-    parser = argparse.ArgumentParser(description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file.")
-    parser.add_argument('-gui', action='store_true', help="Launch the graphical user interface.")
-    parser.add_argument('-v', '--verbose', action='store_true', help="Enable verbose mode for detailed output.")
-    parser.add_argument('--testFile', help="Check a file by extension and run the corresponding plugin.")
+    args = parse_arguments()
 
+    # Konfiguration basierend auf den Argumenten aktualisieren
 
-    args = parser.parse_args()
+    if args.changeui:
+        # Toggle the 'gui' setting
+        config['gui'] = not config.get('gui', False)  # Wenn 'gui' nicht existiert, wird False als Default verwendet.
+    if args.changeverbose:
+        # Toggle the 'verbose' setting
+        config['verbose'] = not config.get('verbose', False)  # Wenn 'verbose' nicht existiert, wird False als Default verwendet.
 
-    if args.gui:
-        gui_loader = GUILoader(image_path)
-        gui_loader.start_gui()
-        return
+    # Speichern der geänderten Konfiguration
+    save_config(config)
 
+    # Wenn eine Datei zum Testen angegeben wurde
     if args.testFile:
-        # Lese die Datei ein, die geprüft werden soll
         try:
             with open(args.testFile, 'rb') as file:
                 file_data = file.read()  # Lese den Inhalt der Datei
@@ -32,16 +83,16 @@ def main():
             sys.exit(1)
 
         # Erstelle eine Instanz des PluginLoaders und führe das Plugin aus
-        plugin_loader = PluginLoader()
-        plugin_loader.test_plugin(args.testFile)
+        engine = Engine()
+        engine.testFile()
         return
 
-    else:
-        shell_interface = SILoader()
-        shell_interface.start_txt()
+    # Hauptprogramm starten, wenn keine keine Testdatei angegeben ist
+    
+    engine = Engine()
+    engine.start()
+
+
 
 if __name__ == "__main__":
-    
     main()
-
-#a line
