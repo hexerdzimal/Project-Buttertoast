@@ -1,4 +1,5 @@
 import sys
+import os
 import json
 import argparse
 from Engine.engine import Engine
@@ -6,35 +7,47 @@ from Engine.engine import Engine
 
 
 def load_config(config_file='config.json'):
-    
-    # Lädt die Konfiguration aus der angegebenen JSON-Datei.
-    
+    """
+    Lädt die Konfiguration aus der angegebenen JSON-Datei im Verzeichnis der Hauptdatei.
+    Erstellt eine Standard-Konfigurationsdatei, falls keine gefunden wird.
+    """
+    # Verzeichnis der aktuellen Datei (wo die main-Methode liegt)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, config_file)
+
+    default_config = {
+        "gui": True,
+        "verbose": False
+    }
+
     try:
-        with open(config_file, 'r') as f:
+        with open(config_path, 'r') as f:
             config = json.load(f)
         return config
     except FileNotFoundError:
-        print(f"[ERROR] Die Konfigurationsdatei '{config_file}' wurde nicht gefunden.")
-        sys.exit(1)
+        print(f"[WARNUNG] Die Konfigurationsdatei '{config_path}' wurde nicht gefunden. Es wird eine Standarddatei erstellt.")
+        save_config(default_config, config_path)
+        return default_config
     except json.JSONDecodeError:
         print("[ERROR] Fehler beim Laden der JSON-Konfigurationsdatei.")
         sys.exit(1)
 
 
-
-
 def save_config(config, config_file='config.json'):
-    
-    # Speichert die geänderte Konfiguration in der JSON-Datei.
-    
+    """
+    Speichert die geänderte Konfiguration in der JSON-Datei im Verzeichnis der Hauptdatei.
+    """
+    # Verzeichnis der aktuellen Datei (wo die main-Methode liegt)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, config_file)
+
     try:
-        with open(config_file, 'w') as f:
+        with open(config_path, 'w') as f:
             json.dump(config, f, indent=4)
-        print(f"[INFO] Konfiguration erfolgreich gespeichert in '{config_file}'.")
+        print(f"[INFO] Konfiguration erfolgreich gespeichert in '{config_path}'.")
     except Exception as e:
         print(f"[ERROR] Fehler beim Speichern der Konfigurationsdatei: {e}")
         sys.exit(1)
-
 
 
 
@@ -60,17 +73,27 @@ def main():
     # Argumente parsen
     args = parse_arguments()
 
-    # Konfiguration basierend auf den Argumenten aktualisieren
+    # Flag, um zu überprüfen, ob Änderungen an der Konfiguration vorgenommen wurden
+    config_changed = False
 
+    # Konfiguration basierend auf den Argumenten aktualisieren
     if args.changeui:
         # Toggle the 'gui' setting
-        config['gui'] = not config.get('gui', False)  # Wenn 'gui' nicht existiert, wird False als Default verwendet.
+        new_gui_value = not config.get('gui', False)  # Wenn 'gui' nicht existiert, wird False als Default verwendet.
+        if config['gui'] != new_gui_value:  # Nur speichern, wenn sich der Wert geändert hat
+            config['gui'] = new_gui_value
+            config_changed = True
+
     if args.changeverbose:
         # Toggle the 'verbose' setting
-        config['verbose'] = not config.get('verbose', False)  # Wenn 'verbose' nicht existiert, wird False als Default verwendet.
+        new_verbose_value = not config.get('verbose', False)  # Wenn 'verbose' nicht existiert, wird False als Default verwendet.
+        if config['verbose'] != new_verbose_value:  # Nur speichern, wenn sich der Wert geändert hat
+            config['verbose'] = new_verbose_value
+            config_changed = True
 
-    # Speichern der geänderten Konfiguration
-    save_config(config)
+    # Speichern der geänderten Konfiguration nur, wenn sie geändert wurde
+    if config_changed:
+        save_config(config)
 
     # Wenn eine Datei zum Testen angegeben wurde
     if args.testFile:
