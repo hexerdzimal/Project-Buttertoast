@@ -47,9 +47,9 @@ class Engine:
         use_gui = self.config.get("gui", False)  # Default to False (TextUI)
         
         if use_gui:
-            self.ui = GUI()
+            self.ui = GUI(self)
         else:
-            self.ui = TUI()
+            self.ui = TUI(self)
 
 
     def start_ui(self):
@@ -179,7 +179,6 @@ class Engine:
         """
         try:
             self.select_ui()
-            self.ui.set_controller(self)  # Links the UI with the Engine
             self.ui.run()
         except Exception as e:
             print(f"Error starting the engine: {e}")

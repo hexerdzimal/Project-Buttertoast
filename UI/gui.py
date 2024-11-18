@@ -8,8 +8,9 @@ from UI.BaseUI import BaseUI
 
 
 class GUI(BaseUI):
-    def __init__(self):
+    def __init__(self, controller):
         super().__init__()
+        self.controller = controller
         self.root = Tk()
         self.running = True  # Kontrollvariable für die Schleife
         self.root.title("Buttertoast")
@@ -65,7 +66,7 @@ class GUI(BaseUI):
 
     def on_execute_click(self, event):
         # Ergebnisse verarbeiten
-        self.controller.handle_user_input(host_path, volume_path, password, save_path)
+        self.controller.handle_user_input(self.host_path, self.volume_path, self.password, self.save_path)
  
     def on_exit_click(self, event=None):
         if messagebox.askokcancel("Beenden", "Möchten Sie das Programm wirklich beenden?"):
