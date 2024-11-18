@@ -5,57 +5,76 @@ import argparse
 from Engine.engine import Engine
 
 
-
 def load_config(config_file='config.json'):
     """
-    Lädt die Konfiguration aus der angegebenen JSON-Datei im Verzeichnis der Hauptdatei.
-    Erstellt eine Standard-Konfigurationsdatei, falls keine gefunden wird.
+    Loads the configuration from the specified JSON file in the directory of the main script.
+    Creates a default configuration file if none is found.
+
+    Args:
+        config_file (str): Name of the configuration file (default: 'config.json').
+
+    Returns:
+        dict: The loaded configuration as a dictionary.
     """
-    # Verzeichnis der aktuellen Datei (wo die main-Methode liegt)
+    # Directory of the current file (where the main method is located)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, config_file)
 
     default_config = {
         "gui": True,
-        "verbose": False
+        "verbose": False,
+        "language": "en"
     }
 
     try:
+        # Attempt to open and load the configuration file
         with open(config_path, 'r') as f:
             config = json.load(f)
         return config
     except FileNotFoundError:
-        print(f"[WARNUNG] Die Konfigurationsdatei '{config_path}' wurde nicht gefunden. Es wird eine Standarddatei erstellt.")
+        # If the file is not found, create a default one
+        print(f"[WARNING] Configuration file '{config_path}' not found. A default file will be created.")
         save_config(default_config, config_path)
         return default_config
     except json.JSONDecodeError:
-        print("[ERROR] Fehler beim Laden der JSON-Konfigurationsdatei.")
+        # Exit if the file contains invalid JSON
+        print("[ERROR] Error loading the JSON configuration file.")
         sys.exit(1)
 
 
 def save_config(config, config_file='config.json'):
     """
-    Speichert die geänderte Konfiguration in der JSON-Datei im Verzeichnis der Hauptdatei.
+    Saves the updated configuration to a JSON file in the directory of the main script.
+
+    Args:
+        config (dict): The configuration dictionary to save.
+        config_file (str): Name of the configuration file (default: 'config.json').
     """
-    # Verzeichnis der aktuellen Datei (wo die main-Methode liegt)
+    # Directory of the current file (where the main method is located)
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, config_file)
 
     try:
+        # Attempt to write the configuration to the file
         with open(config_path, 'w') as f:
             json.dump(config, f, indent=4)
-        print(f"[INFO] Konfiguration erfolgreich gespeichert in '{config_path}'.")
+        print(f"[INFO] Configuration successfully saved to '{config_path}'.")
     except Exception as e:
-        print(f"[ERROR] Fehler beim Speichern der Konfigurationsdatei: {e}")
+        # Handle any exceptions during file writing
+        print(f"[ERROR] Error saving the configuration file: {e}")
         sys.exit(1)
 
 
-
 def parse_arguments():
-    
-    # Parst die Kommandozeilenargumente und gibt ein Namespace-Objekt mit den Werten zurück.
-    
-    parser = argparse.ArgumentParser(description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file.")
+    """
+    Parses command-line arguments and returns a Namespace object with the values.
+
+    Returns:
+        argparse.Namespace: Parsed command-line arguments.
+    """
+    parser = argparse.ArgumentParser(
+        description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file."
+    )
 
     parser.add_argument('--testFile', help="Check a file by extension and run the corresponding plugin.")
     parser.add_argument('--changeui', '-cui', action='store_true', help="Toggle the GUI setting in the configuration.")
@@ -64,57 +83,58 @@ def parse_arguments():
     return parser.parse_args()
 
 
-
-
 def main():
-    # Konfiguration laden
+    """
+    Main entry point of the application. Manages configuration loading, argument parsing,
+    and interaction with the Engine.
+    """
+    # Load the configuration
     config = load_config()
 
-    # Argumente parsen
+    # Parse command-line arguments
     args = parse_arguments()
 
-    # Flag, um zu überprüfen, ob Änderungen an der Konfiguration vorgenommen wurden
+    # Flag to check if any changes were made to the configuration
     config_changed = False
 
-    # Konfiguration basierend auf den Argumenten aktualisieren
+    # Update the configuration based on command-line arguments
     if args.changeui:
         # Toggle the 'gui' setting
-        new_gui_value = not config.get('gui', False)  # Wenn 'gui' nicht existiert, wird False als Default verwendet.
-        if config['gui'] != new_gui_value:  # Nur speichern, wenn sich der Wert geändert hat
+        new_gui_value = not config.get('gui', False)  # Default to False if 'gui' is not present
+        if config['gui'] != new_gui_value:  # Only save if the value has changed
             config['gui'] = new_gui_value
             config_changed = True
 
     if args.changeverbose:
         # Toggle the 'verbose' setting
-        new_verbose_value = not config.get('verbose', False)  # Wenn 'verbose' nicht existiert, wird False als Default verwendet.
-        if config['verbose'] != new_verbose_value:  # Nur speichern, wenn sich der Wert geändert hat
+        new_verbose_value = not config.get('verbose', False)  # Default to False if 'verbose' is not present
+        if config['verbose'] != new_verbose_value:  # Only save if the value has changed
             config['verbose'] = new_verbose_value
             config_changed = True
 
-    # Speichern der geänderten Konfiguration nur, wenn sie geändert wurde
+    # Save the configuration only if changes were made
     if config_changed:
         save_config(config)
 
-    # Wenn eine Datei zum Testen angegeben wurde
+    # If a file is specified for testing
     if args.testFile:
         try:
+            # Attempt to read the file
             with open(args.testFile, 'rb') as file:
-                file_data = file.read()  # Lese den Inhalt der Datei
-                print(f"[DEBUG] Datei '{args.testFile}' erfolgreich eingelesen. Größe: {len(file_data)} Bytes")
+                file_data = file.read()  # Read the file content
+                print(f"[DEBUG] File '{args.testFile}' successfully read. Size: {len(file_data)} bytes")
         except FileNotFoundError:
-            print(f"[ERROR] Die Datei '{args.testFile}' wurde nicht gefunden.")
+            print(f"[ERROR] File '{args.testFile}' not found.")
             sys.exit(1)
 
-        # Erstelle eine Instanz des PluginLoaders und führe das Plugin aus
+        # Create an instance of the Engine and execute the plugin
         engine = Engine()
         engine.testFile()
         return
 
-    # Hauptprogramm starten, wenn keine keine Testdatei angegeben ist
-    
+    # Start the main program if no test file is specified
     engine = Engine()
     engine.start()
-
 
 
 if __name__ == "__main__":
