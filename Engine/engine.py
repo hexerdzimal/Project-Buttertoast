@@ -60,7 +60,7 @@ class Engine:
         self.ui.set_controller(self)  # Pass the Engine as a controller to the UI
 
 
-    def process_data(self, host, host_bytecode, volume_bytecode, password, output):
+    def process_data(self, host, host_bytecode, volume_bytecode, password, output_filename):
         """
         Processes the data, runs the plugin, and returns the result.
 
@@ -90,7 +90,9 @@ class Engine:
             buttertoast = cryptomat.cryptomator(volume_bytecode, poly_bytecode, password)
 
             # Save the result to a file
-            self.save_bytecode_to_file(buttertoast, output)  # Use 'output' as the filename
+            _, extension = os.path.splitext(host)
+            outputfile = output_filename+extension
+            self.save_bytecode_to_file(buttertoast, outputfile)  # Use 'output' as the filename
 
             return {"status": "File successfully created"}
         except Exception as e:
