@@ -43,7 +43,7 @@ class PluginLoader:
         """
         return f"btp_{extension}"
     
-    def load_and_run_plugin(self, filename, volume, host):
+    def load_and_run_plugin(self, host_name, volume_byte, host_byte):
         """
         Loads and runs the plugin based on the given filename, passing the volume and host bytecode data.
 
@@ -58,10 +58,10 @@ class PluginLoader:
         Raises:
             Exception: If there's an error during plugin loading or execution.
         """
-        print(f"[DEBUG] Trying to load the plugin for file '{filename}'...")
+        print(f"[DEBUG] Trying to load the plugin for file '{host_name}'...")
         
         # Get file extension and plugin name
-        extension = self.get_extension(filename)
+        extension = self.get_extension(host_name)
         plugin_name = self.get_plugin_name(extension)
         print(f"[DEBUG] Found file extension: '{extension}', Plugin name: '{plugin_name}'")
         
@@ -79,7 +79,7 @@ class PluginLoader:
             print(f"[DEBUG] Creating an instance of '{plugin_class.__name__}'...")
             plugin_instance = plugin_class()
             print(f"[DEBUG] Running the 'run' method of '{plugin_class.__name__}'...")
-            poly_byte = plugin_instance.run(host, volume)  # Pass 'host' and 'volume' as bytecode data
+            poly_byte = plugin_instance.run(volume_byte, host_byte)  # Pass 'host' and 'volume' as bytecode data
             print(f"[DEBUG] '{plugin_class.__name__}' executed successfully.")
 
             return poly_byte

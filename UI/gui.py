@@ -66,7 +66,19 @@ class GUI(BaseUI):
 
     def on_execute_click(self, event):
         # Ergebnisse verarbeiten
-        self.controller.handle_user_input(self.host_path.get(), self.volume_path.get(), self.password.get(), self.save_path.get())
+        try:
+            host = self.host_path.get()
+            volume = self.volume_path.get()
+            password = self.password.get()
+            saveloc = self.save_path.get()
+
+            self.controller.handle_user_input(host, volume, password, saveloc)
+            print(host)
+            print(volume)
+            print(saveloc)
+            print(password)
+        except:
+            print("LOL!")
  
     def on_exit_click(self, event=None):
         if messagebox.askokcancel("Beenden", "Möchten Sie das Programm wirklich beenden?"):

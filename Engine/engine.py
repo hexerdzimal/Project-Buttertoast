@@ -77,15 +77,16 @@ class Engine:
         Raises:
             Exception: If there is an error during plugin execution or file saving.
         """
-        print(f"Processing data: Password={password}, Output={output}")
 
         try:
             # Load and run the plugin
-            plugin = PluginLoader
+            plugin = PluginLoader()
+            erste_10_zeichen = host_bytecode[:10]
+            print(erste_10_zeichen)
             poly_bytecode = plugin.load_and_run_plugin(host, volume_bytecode, host_bytecode)
 
             # Encrypt using Cryptomat
-            cryptomat = Cryptomat
+            cryptomat = Cryptomat()
             buttertoast = cryptomat.cryptomator(volume_bytecode, poly_bytecode, password)
 
             # Save the result to a file
