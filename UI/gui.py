@@ -74,7 +74,7 @@ class GUI(BaseUI):
         )
         print("Ergebnisse: ", result)
         return result
-
+ 
     def on_exit_click(self, event=None):
         if messagebox.askokcancel("Beenden", "Möchten Sie das Programm wirklich beenden?"):
             self.running = False  
