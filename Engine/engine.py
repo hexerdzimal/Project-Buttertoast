@@ -16,7 +16,6 @@ class Engine:
         self.config = self.load_config()
         self.ui = None
 
-
     def load_config(self):
         """
         Loads the configuration file from the project root directory.
@@ -38,7 +37,6 @@ class Engine:
         
         return config
     
-    
     def select_ui(self):
         """
         Selects the user interface (GUI or TUI) based on the configuration.
@@ -51,14 +49,12 @@ class Engine:
         else:
             self.ui = TUI(self)
 
-
     def start_ui(self):
         """
         Initializes the base user interface and links it to the engine as a controller.
         """
         self.ui = BaseUI()
         self.ui.set_controller(self)  # Pass the Engine as a controller to the UI
-
 
     def process_data(self, host, host_bytecode, volume_bytecode, password, output_filename):
         """
@@ -69,7 +65,7 @@ class Engine:
             host_bytecode (bytes): Bytecode of the host file.
             volume_bytecode (bytes): Bytecode of the volume file.
             password (str): Password for encryption.
-            output (str): Name of the output file.
+            output_filename (str): Name of the output file.
 
         Returns:
             dict: A dictionary indicating success or error details.
@@ -77,28 +73,28 @@ class Engine:
         Raises:
             Exception: If there is an error during plugin execution or file saving.
         """
-
         try:
-            # Load and run the plugin
-            plugin = PluginLoader()
-            erste_10_zeichen = host_bytecode[:10]
-            print(erste_10_zeichen)
-            poly_bytecode = plugin.load_and_run_plugin(host, volume_bytecode, host_bytecode)
+            # Extract file extension from host file
+            extension = self.get_file_extension(host)
 
-            # Encrypt using Cryptomat
+            # Load and run the plugin, passing the extension
+            plugin = PluginLoader()
+            poly_bytecode = plugin.load_and_run_plugin(volume_bytecode, host_bytecode, extension)
+
+            # Perform encryption using Cryptomat
             cryptomat = Cryptomat()
             buttertoast = cryptomat.cryptomator(volume_bytecode, poly_bytecode, password)
 
             # Save the result to a file
-            _, extension = os.path.splitext(host)
-            outputfile = output_filename+extension
-            self.save_bytecode_to_file(buttertoast, outputfile)  # Use 'output' as the filename
+            _, file_extension = os.path.splitext(host)
+            outputfile = output_filename + file_extension
+            self.save_bytecode_to_file(buttertoast, outputfile)
 
             return {"status": "File successfully created"}
+
         except Exception as e:
             print(f"[ERROR] Error during plugin execution: {e}")
             return {"status": "Error", "error_message": str(e)}
-
 
     def handle_user_input(self, host, volume, password, output):
         """
@@ -113,7 +109,6 @@ class Engine:
         Raises:
             ValueError: If any of the inputs are missing.
             Exception: If there is an error during file processing.
-
         """
         try:
             # Validate input
@@ -132,7 +127,6 @@ class Engine:
 
         except Exception as e:
             self.ui.show_error(f"Error during processing: {str(e)}")
-
 
     def read_file_as_bytecode(self, file_path):
         """
@@ -171,7 +165,18 @@ class Engine:
         except Exception as e:
             print(f"[ERROR] Error saving bytecode to the file '{filename}': {e}")
 
-    
+    def get_file_extension(self, file_path):
+        """
+        Returns the extension of the file (e.g., 'txt' or 'jpg').
+
+        Args:
+            file_path (str): Path to the file.
+
+        Returns:
+            str: The file extension without the leading dot (e.g., 'txt').
+        """
+        _, extension = os.path.splitext(file_path)
+        return extension.lstrip('.')  # Removes the leading dot
 
     def start(self):
         """
