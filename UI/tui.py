@@ -5,13 +5,21 @@ from UI.BaseUI import BaseUI
 
 class TUI(BaseUI):
 
+    def complete_path(self, text, state):
+        # Autovervollständigung für Dateien und Ordner
+        results = [x for x in os.listdir('.') if x.startswith(text)] + [None]
+        return results[state]
+
     def open_file(self, file_type):
         """
-        Öffnet eine Datei über die Eingabe eines Dateipfads und gibt den Pfad zurück.
+        Öffnet eine Datei über die Eingabe eines Dateipfads und prüft, ob sie existiert.
         """
+        readline.set_completer(self.complete_path)
+        readline.parse_and_bind("tab: complete")
+
         while True:
             file_path = input(f"Bitte geben Sie den Pfad zur {file_type}-Datei ein: ")
-            if os.path.exists(file_path):
+            if os.path.isfile(file_path):
                 return file_path
             print(f"Die Datei {file_path} existiert nicht. Bitte versuchen Sie es erneut.")
 
