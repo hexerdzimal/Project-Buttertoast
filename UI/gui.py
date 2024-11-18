@@ -1,6 +1,5 @@
 from tkinter import Tk, filedialog, simpledialog, messagebox
 import tkinter as tk
-import json
 from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 from tkinter import messagebox
@@ -66,14 +65,7 @@ class GUI(BaseUI):
 
     def on_execute_click(self, event):
         # Ergebnisse verarbeiten
-        result = self.startProcessing(
-            self.host_path.get(),
-            self.volume_path.get(),
-            self.password.get(),
-            self.save_path.get()
-        )
-        print("Ergebnisse: ", result)
-        return result
+        self.controller.handle_user_input(host_path, volume_path, password, save_path)
  
     def on_exit_click(self, event=None):
         if messagebox.askokcancel("Beenden", "Möchten Sie das Programm wirklich beenden?"):

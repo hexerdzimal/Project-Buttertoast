@@ -2,7 +2,7 @@ import os
 import json
 from Engine.plugin_Loader import PluginLoader
 from UI.BaseUI import BaseUI
-from UI.TUI import TUI  
+from UI.tui import TUI  
 from UI.gui import GUI     
 from Crypt.cryptomat import Cryptomat   
 
