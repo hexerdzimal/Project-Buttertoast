@@ -2,7 +2,9 @@ import sys
 import os
 import json
 import argparse
-from Engine.engine import Engine
+from Engine.engine import Engine;
+from Engine.eventManager import EventManager
+
 
 
 def load_config(config_file='config.json'):
@@ -133,7 +135,9 @@ def main():
         return
 
     # Start the main program if no test file is specified
-    engine = Engine()
+    
+    event_manager = EventManager()
+    engine = Engine(event_manager)
     engine.start()
 
 
