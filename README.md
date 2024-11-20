@@ -1,8 +1,113 @@
+
 # Project-Buttertoast
-A project to create an application that hides TrueCrypt-Container in different files.
 
-Just like butter that melts on a warm and tasty toast...
+**Project-Buttertoast** is an innovative application designed to hide TrueCrypt containers inside various file formats. Using a unique polyglot technique, it embeds the container in such a way that it remains both encrypted and functional as a TrueCrypt volume, while also appearing to be a different file type, such as a WAV file or PNG image. This method has successfully bypassed detection tools like `tchunt` and other common verification methods.
 
-This application was made with a lot of love and passion by
+With a user-friendly interface and support for a variety of file formats, **Project-Buttertoast** offers a flexible and secure way to store sensitive data invisibly. It also supports plugin extensibility, so anyone with basic Python knowledge can add support for new file formats.
 
-Fabian Kozlowski, Stefan Leippe, Malte Muthesius and Matthias Ferstl
+## Features
+
+- **TrueCrypt Container Hiding**: Seamlessly embed TrueCrypt containers inside various file formats (e.g., WAV, PNG, ICO, SVG, HTML, TIFF).
+- **Polyglot Technology**: The TrueCrypt container is hidden within the file without disrupting its functionality, making it appear as a normal file type (like a WAV or PNG) while still being usable as a TrueCrypt volume.
+- **Multiple File Formats Supported**: Includes built-in plugins for several file types such as ICO, SVG, WAV, TIFF, PNG, HTML, and more.
+- **User Interface**: Both a graphical user interface (GUI) and a terminal user interface (TUI) are available.
+- **Plugin Extensibility**: The application allows for easy addition of new plugins to support additional file formats. Anyone with basic Python knowledge can develop custom plugins.
+- **Cross-Platform**: Supports all major operating systems that can run Python interpreters.
+
+## Installation
+
+### Step 1: Clone the Repository
+
+First, clone the repository to your local machine:
+```bash
+git clone https://github.com/[Your-Repo]/project-buttertoast.git
+```
+
+### Step 2: Install Dependencies
+
+Install the required dependencies using the `requirements.txt` file:
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Run the Application
+
+To start the application, run the following command:
+
+- **Initial Run (TUI)**:
+  ```bash
+  python buttertoast.py
+  ```
+  The first time you run the application, it will start in the terminal user interface (TUI). You can set preferences in the settings to launch with the desired UI (GUI or TUI) in the future.
+
+## Usage
+
+### Hiding a TrueCrypt Container
+
+1. **Select the File**: Choose the file in which you want to hide the TrueCrypt container (e.g., a WAV or PNG file).
+2. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified.
+3. **Start the Process**: Click "Start" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. 
+
+**Note**: No data is stored, corrupted, or shared. The password is only used to modify the container header and is not saved.
+
+### Retrieving a Hidden Container
+
+Currently, the function to retrieve hidden containers is not implemented. This feature will be added in future releases.
+
+### Plugin System
+
+The application supports plugins to extend its functionality. You can add new plugins for additional file types by placing them in the `plugins` directory. 
+
+- **Plugin Development**: While creating plugins requires basic Python knowledge, it also requires an understanding of how to hide data within the bytecode of files. This is not a trivial task and requires a deeper understanding of file structures and byte-level manipulation.
+
+## Security
+
+- **Polyglot Technology**: The container is hidden in such a way that it behaves like a normal file, bypassing common detection tools and methods (e.g., `tchunt`).
+- **Encryption**: The TrueCrypt container remains fully encrypted and secure.
+- **Cross-Platform Support**: The application works on all operating systems that support Python 3.x, such as Windows, macOS, and Linux.
+
+## Technical Details
+
+- **Programming Language**: Python 3.13
+- **Dependencies**: The necessary libraries are listed in `requirements.txt`. Key libraries include:
+   - `cryptography` for secure encryption
+   - `Pillow` for image handling
+   - `requests` for network requests
+   - and more.
+- **Supported Operating Systems**: Any OS that can run Python 3.x (Windows, macOS, Linux)
+
+### Key Dependencies:
+```txt
+certifi==2024.8.30
+cffi==1.17.1
+charset-normalizer==3.4.0
+cryptography==43.0.3
+fpdf==1.7.2
+idna==3.10
+Jinja2==3.1.4
+MarkupSafe==3.0.2
+pillow==11.0.0
+pycparser==2.22
+requests==2.32.3
+urllib3==2.2.3
+```
+
+## Limitations
+
+- **File Formats**: TrueCrypt volumes can only be hidden in file formats for which a functioning plugin exists. Please refer to the plugin folder or check the available file types listed in the program itself.
+- **Container Size**: Containers can be any size, but "unusually large files" (relative to their file type) may raise suspicion. For example, HTML files are typically much smaller than WAV files, so large HTML files will stand out more than large WAV files.
+- **Plugin Creation**: While the plugin system is designed to be easily extensible, creating plugins requires basic Python knowledge and a deeper understanding of bytecode manipulation and how to hide data within files.
+
+## Future Plans
+
+- **Multi-Language Support**: Plans to add support for multiple languages to make the application more accessible.
+- **Additional Encryption Algorithms**: Future updates may include support for other encryption algorithms such as AES with 512-bit keys and SHA-512 hashing.
+- **Further Features**: Ongoing development may add additional features, such as improved user interfaces or other cryptographic techniques.
+
+## Contributing
+
+This project was developed by **Fabian Kozlowski, Stefan Leippe, Malte Muthesius, and Matthias Ferstl** as part of a university project. Contributions and improvements are welcome!
+
+## License
+
+This project is licensed under the GNU General Public License (GPL) v3. See the `LICENSE` file for more details.
