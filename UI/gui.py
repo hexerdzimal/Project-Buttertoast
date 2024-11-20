@@ -18,7 +18,7 @@ class GUI(BaseUI):
         self.root.minsize(700, 700)
         self.root.resizable(False, False)
 
-        self.image_path = os.path.join(os.path.dirname(__file__), "..", "BuTo1.png")
+        self.image_path = os.path.join(os.path.dirname(__file__), "..", "res/BuTo1.png")
         self.img = Image.open(self.image_path)
         self.img = self.img.resize((700, 700), Image.LANCZOS)
         self.background_image = ImageTk.PhotoImage(self.img)
@@ -35,7 +35,6 @@ class GUI(BaseUI):
 
         self.create_widgets()
         self.root.protocol("WM_DELETE_WINDOW", self.on_exit_click)  # Schließen-Button
-        self.root.mainloop()
 
     def create_widgets(self):
         self.password_entry = ttk.Entry(self.root, show="*", textvariable=self.password, width=10)
@@ -56,30 +55,23 @@ class GUI(BaseUI):
         self.password_entry.config(show="" if self.show_password_var.get() else "*")
 
     def on_host_click(self, event):
-        self.host_path.set(self.openFile("Host"))
+        self.host_path.set(self.open_file("Host"))
 
     def on_volume_click(self, event):
-        self.volume_path.set(self.openFile("Guest"))
+        self.volume_path.set(self.open_file("Guest"))
 
     def on_save_click(self, event):
-        self.save_path.set(self.saveFile())
+        self.save_path.set(self.save_file())
 
     def on_execute_click(self, event):
         # Ergebnisse verarbeiten
-        try:
-            host = self.host_path.get()
-            volume = self.volume_path.get()
-            password = self.password.get()
-            saveloc = self.save_path.get()
+        host = self.host_path.get()
+        volume = self.volume_path.get()
+        password = self.password.get()
+        saveloc = self.save_path.get()
 
-            self.controller.handle_user_input(host, volume, password, saveloc)
-            print(host)
-            print(volume)
-            print(saveloc)
-            print(password)
-        except:
-            print("LOL!")
- 
+        self.controller.handle_user_input(host, volume, password, saveloc)
+
     def on_exit_click(self, event=None):
         if messagebox.askokcancel("Beenden", "Möchten Sie das Programm wirklich beenden?"):
             self.running = False  
@@ -102,5 +94,5 @@ class GUI(BaseUI):
         messagebox.showerror("Fehler", message)
 
     def run(self):
-        while self.running:
-            self.root.update()  
+        # Jetzt startet das GUI mit der Hauptschleife
+        self.root.mainloop()

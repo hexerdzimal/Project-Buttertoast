@@ -1,20 +1,23 @@
 import os
 import json
 from Engine.plugin_Loader import PluginLoader
-from UI.BaseUI import BaseUI
-from UI.tui import TUI  
-from UI.gui import GUI     
-from Crypt.cryptomat import Cryptomat   
+from UI.testMasterUI import BaseUI
+from UI.testTUI import TUI  
+from UI.testGUI import GUI     
+from Crypt.cryptomat import Cryptomat
+   
 
 
 class Engine:
 
-    def __init__(self):
-        """
-        Initializes the Engine, loads the configuration, and sets the UI to None initially.
-        """
+    def __init__(self, event_manager):
+        self.event_manager = event_manager
         self.config = self.load_config()
         self.ui = None
+
+        # Event-Handler registrieren
+        self.event_manager.register_event("process_data", self.on_process_data)
+        self.event_manager.register_event("list_data", self.on_list_data)
 
     def load_config(self):
         """
@@ -40,21 +43,20 @@ class Engine:
     def select_ui(self):
         """
         Selects the user interface (GUI or TUI) based on the configuration.
-        Defaults to TUI if the 'gui' setting is False or not present.
         """
-        use_gui = self.config.get("gui", False)  # Default to False (TextUI)
-        
+        use_gui = self.config.get("gui", False)
         if use_gui:
-            self.ui = GUI(self)
+            self.ui = GUI(self.event_manager)  
         else:
-            self.ui = TUI(self)
+            self.ui = TUI(self.event_manager)  
 
     def start_ui(self):
         """
-        Initializes the base user interface and links it to the engine as a controller.
+        Starts the already selected UI.
         """
-        self.ui = BaseUI()
-        self.ui.set_controller(self)  # Pass the Engine as a controller to the UI
+        if self.ui is None:
+            raise RuntimeError("No UI selected. Call 'select_ui()' first.")
+        self.ui.run()
 
     def process_data(self, host, host_bytecode, volume_bytecode, password, output_filename):
         """
@@ -190,3 +192,61 @@ class Engine:
             self.ui.run()
         except Exception as e:
             print(f"Error starting the engine: {e}")
+
+
+
+    def on_process_data(self, data):
+        """
+            Event-Handler für das 'process_data'-Event.
+
+            Args:
+                data (dict): Daten, die von der UI übergeben wurden.
+        """
+        print("Der Handler geht durch")
+        try:
+            host = data["host"]
+            volume = data["volume"]
+            password = data["password"]
+            output = data["output"]
+
+            # Dateien einlesen und Verarbeitung starten
+            host_bytecode = self.read_file_as_bytecode(host)
+            volume_bytecode = self.read_file_as_bytecode(volume)
+            result = self.process_data(host, host_bytecode, volume_bytecode, password, output)
+
+            # Ergebnis anzeigen
+            self.ui.show_result(result)
+
+        except Exception as e:
+            self.ui.show_error(f"Fehler: {str(e)}")
+
+    def on_list_data(self, _):
+        """
+        Event-Handler für das 'list_data'-Event.
+        Listet alle Dateien im 'plugins'-Ordner auf, die mit 'btp_' beginnen und '.py' enden.
+        """
+        try:
+            # Plugins-Verzeichnis relativ zum Projektpfad
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            plugins_dir = os.path.join(project_root, "plugins")
+
+            # Prüfen, ob das Verzeichnis existiert
+            if not os.path.exists(plugins_dir):
+                print("\nDer 'plugins'-Ordner wurde nicht gefunden.")
+                return
+
+            # Dateien im Verzeichnis filtern
+            plugin_files = [
+                file for file in os.listdir(plugins_dir)
+                if file.startswith("btp_") and file.endswith(".py")
+            ]
+
+            # Ergebnisse ausgeben
+            if plugin_files:
+                print("\nVerfügbare Plugins:")
+                for idx, file in enumerate(plugin_files, start=1):
+                    print(f"{idx}: {file}")
+            else:
+                print("\nKeine passenden Plugins gefunden.")
+        except Exception as e:
+            print(f"Fehler beim Auflisten der Plugins: {e}")
