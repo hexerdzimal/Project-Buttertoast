@@ -34,7 +34,6 @@ pip install -r requirements.txt
 
 To start the application, run the following command:
 
-- **Initial Run (TUI)**:
   ```bash
   python buttertoast.py
   ```
@@ -97,16 +96,17 @@ urllib3==2.2.3
 - **File Formats**: TrueCrypt volumes can only be hidden in file formats for which a functioning plugin exists. Please refer to the plugin folder or check the available file types listed in the program itself.
 - **Container Size**: Containers can be any size, but "unusually large files" (relative to their file type) may raise suspicion. For example, HTML files are typically much smaller than WAV files, so large HTML files will stand out more than large WAV files.
 - **Plugin Creation**: While the plugin system is designed to be easily extensible, creating plugins requires basic Python knowledge and a deeper understanding of bytecode manipulation and how to hide data within files.
+- **True Crypt Encryption Mode**: For now only supports AES encrypted files (SHA-512)
 
 ## Future Plans
 
 - **Multi-Language Support**: Plans to add support for multiple languages to make the application more accessible.
-- **Additional Encryption Algorithms**: Future updates may include support for other encryption algorithms such as AES with 512-bit keys and SHA-512 hashing.
+- **Additional Encryption Algorithms**: Future updates may include support for other encryption algorithms.
 - **Further Features**: Ongoing development may add additional features, such as improved user interfaces or other cryptographic techniques.
 
 ## Contributing
 
-This project was developed by **Fabian Kozlowski, Stefan Leippe, Malte Muthesius, and Matthias Ferstl** as part of a university project. Contributions and improvements are welcome!
+This project was developed by **Fabian Kozlowski, Stefan Leippe, Malte Muthesius, and Matthias Ferstl** as part of a university (Fernuniversitaet Hagen) project. Contributions and improvements are welcome!
 
 ## License
 
