@@ -62,3 +62,9 @@ class GUI(BaseUI):
         Zeigt eine Fehlermeldung in einem Dialogfenster an.
         """
         tk.messagebox.showerror("Fehler", message)
+
+    def edit_config():
+        """
+        Menü zum Bearbeiten der Einstellungen in der Config
+
+        """

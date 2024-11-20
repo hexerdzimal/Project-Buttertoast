@@ -29,8 +29,9 @@ class TUI(BaseUI):
                         """)   
 
             print("1: Dateneingabe und Verarbeitung starten")
-            print("2: Daten auflisten")
-            print("3: Beenden")
+            print("2: Plugins auflisten")
+            print("3: Einstellungen")
+            print("4: Beenden")
 
             choice = input("Bitte wählen Sie eine Option: ").strip()
 
@@ -39,6 +40,8 @@ class TUI(BaseUI):
             elif choice == "2":
                 self.trigger_list_data()
             elif choice == "3":
+                self.edit_config()
+            elif choice == "4":
                 print("Auf Wiedersehen!")
                 break
             else:
@@ -66,6 +69,52 @@ class TUI(BaseUI):
         else:
             print("Abgebrochen.")
 
+    def edit_config(self):
+        """
+        Änderung der Einstellungen in der config.json
+        """
+        print("1: UserInterface wechseln")
+        print("2: Verbosemodus wechseln")
+        print("3: Spracheinstellungen")
+        print("4: Zurück ins Hauptmenü")
+
+        choice = input("Bitte wählen Sie eine Option: ").strip()
+
+        if choice == "1":
+            # Hier sollte das Event ausgelöst werden, um die UI zu wechseln
+            self.event_manager.trigger_event("change_ui", None)
+        elif choice == "2":
+            self.event_manager.trigger_event("change_verbose", None)
+        elif choice == "3":
+            # Hier kannst du weitere Aktionen hinzufügen
+            print("Spracheneinstellungen sind noch nicht implementiert.")
+        elif choice == "4":
+            self.run()  # Zurück zum Hauptmenü
+        else:
+            print("Ungültige Auswahl. Bitte versuchen Sie es erneut.")
+
+
+    def trigger_change_language(self):
+        """
+        Löst das Event 'change_language' aus.
+        """
+        print("\n--- Daten auflisten ---")
+        self.event_manager.trigger_event("change_language", None)
+
+    def trigger_change_ui(self):
+        """
+        Löst das Event 'change_ui' aus.
+        """
+        print("\n--- Daten auflisten ---")
+        self.event_manager.trigger_event("change_ui", None)
+
+    def trigger_change_verbose(self):
+        """
+        Löst das Event 'change_verbose' aus.
+        """
+        print("\n--- Daten auflisten ---")
+        self.event_manager.trigger_event("change_verbose", None)
+
     def trigger_list_data(self):
         """
         Löst das Event 'list_data' aus.
@@ -84,3 +133,5 @@ class TUI(BaseUI):
         Zeigt eine Fehlermeldung an.
         """
         print(f"Fehler: {message}")
+
+

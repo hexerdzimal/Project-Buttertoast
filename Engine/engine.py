@@ -18,6 +18,9 @@ class Engine:
         # Event-Handler registrieren
         self.event_manager.register_event("process_data", self.on_process_data)
         self.event_manager.register_event("list_data", self.on_list_data)
+        self.event_manager.register_event("change_ui", self.on_change_ui)
+        self.event_manager.register_event("change_verbose", self.on_change_verbose)
+        self.event_manager.register_event("change_language", self.on_change_language)
 
     def load_config(self):
         """
@@ -39,6 +42,16 @@ class Engine:
             config = json.load(file)
         
         return config
+    
+    def save_config(self):
+        """
+        Speichert die geänderte Konfiguration zurück in die Konfigurationsdatei.
+        """
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        config_path = os.path.join(project_root, "config.json")
+        
+        with open(config_path, "w") as file:
+            json.dump(self.config, file, indent=4)
     
     def select_ui(self):
         """
@@ -250,3 +263,51 @@ class Engine:
                 print("\nKeine passenden Plugins gefunden.")
         except Exception as e:
             print(f"Fehler beim Auflisten der Plugins: {e}")
+
+
+    def on_change_ui(self, _):
+        """
+        Event handler for the 'change_ui' event.
+        Toggles the value of the 'gui' parameter in the config.json.
+        """
+        try:
+            # Toggle the value of 'gui'
+            self.config["gui"] = not self.config.get("gui", False)
+
+            # Save the updated configuration
+            self.save_config()
+
+            # Output confirmation message
+            new_value = "enabled" if self.config["gui"] else "disabled"
+            print(f"GUI has been {new_value}.")
+        except Exception as e:
+            print(f"Error toggling the 'gui' value: {e}")
+
+    def on_change_verbose(self, _):
+        """
+        Event handler for the 'change_verbose' event.
+        Toggles the value of the 'verbose' parameter in the config.json.
+        """
+        try:
+            # Toggle the value of 'verbose'
+            self.config["verbose"] = not self.config.get("verbose", False)
+
+            # Save the updated configuration
+            self.save_config()
+
+            # Output confirmation message
+            new_value = "enabled" if self.config["verbose"] else "disabled"
+            print(f"Verbose has been {new_value}.")
+        except Exception as e:
+            print(f"Error toggling the 'verbose' value: {e}")
+
+    def on_change_language(self, _):
+        """
+        Event handler for the 'change_language' event.
+        Sets the value of the 'language' parameter in the config.json.
+        """
+        try:
+            # Toggle the value of 'language'
+            print(f"Changed the language.")
+        except Exception as e:
+            print(f"Error toggling the 'verbose' value: {e}")
