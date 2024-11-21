@@ -1,137 +1,193 @@
 from UI.testMasterUI import BaseUI
 
+from UI.testMasterUI import BaseUI
+
 class TUI(BaseUI):
     def __init__(self, event_manager):
+        """
+        Initialize the TUI (Text User Interface) with an event manager.
+        
+        Args:
+            event_manager: The event manager responsible for triggering events in the application.
+        """
         super().__init__(event_manager)
+
+    def display_title(self):
+        """
+        Displays the title of the application only once.
+        This method is called at the start of the application to display the logo and version.
+        """
+        print(r"""
+            +===================================================================================================+
+            |                                                                         Version: 0.2 (cold) 2024  |
+            |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
+            |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
+            |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
+            |   ██╔══██╗██║   ██║   ██║      ██║   ██╔══╝  ██╔══██╗   ██║   ██║   ██║██╔══██║╚════██║   ██║     |
+            |   ██████╔╝╚██████╔╝   ██║      ██║   ███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║███████║   ██║     |
+            |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
+            |                                   The melting pot for polyglot.                                   |
+            +===================================================================================================+
+                                            by Fabian Kozlowski, Stefan Leippe, Malte Muthesius, Matthias Ferstl
+                """)
 
     def run(self):
         """
-        Hauptmenü der TUI. Der Benutzer wählt, ob er zur Dateneingabe möchte
-        oder eine andere Aktion ausführen will.
+        Displays the main menu and allows the user to choose actions like starting data input, listing plugins, or adjusting settings.
+        This method also handles user navigation in the menu.
         """
+        self.display_title()  # Display the title once at the start
+
         while True:
-            print (r"""
+            print("\n")
+            print("Main Menu")
+            print("------------------------------------------")
+            print("1: Start data input and processing")
+            print("2: List plugins")
+            print("3: Settings")
+            print("4: Exit")
+            print("\n")
 
-                        
-                            
-                    +===================================================================================================+
-                    |                                                                         Version: 0.1 (burnt) 2024 |
-                    |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
-                    |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
-                    |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
-                    |   ██╔══██╗██║   ██║   ██║      ██║   ██╔══╝  ██╔══██╗   ██║   ██║   ██║██╔══██║╚════██║   ██║     |
-                    |   ██████╔╝╚██████╔╝   ██║      ██║   ███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║███████║   ██║     |
-                    |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
-                    |                                   The melting pot for polyglot.                                   |
-                    +===================================================================================================+
-                                                    by Fabian Kozlowski, Stefan Leippe, Malte Muthesius, Matthias Ferstl
-
-                        """)   
-
-            print("1: Dateneingabe und Verarbeitung starten")
-            print("2: Plugins auflisten")
-            print("3: Einstellungen")
-            print("4: Beenden")
-
-            choice = input("Bitte wählen Sie eine Option: ").strip()
+            choice = input("Please choose an option: ").strip()
 
             if choice == "1":
-                self.data_input_menu()
+                self.data_input_menu()  # Navigate to data input menu
             elif choice == "2":
-                self.trigger_list_data()
+                self.trigger_list_data()  # Trigger the list data event
             elif choice == "3":
-                self.edit_config()
+                self.edit_config()  # Navigate to the settings menu
             elif choice == "4":
-                print("Auf Wiedersehen!")
-                break
+                print("Goodbye!")
+                break  # Exit the application
             else:
-                print("Ungültige Auswahl. Bitte versuchen Sie es erneut.")
+                print("Invalid selection. Please try again.")
 
     def data_input_menu(self):
         """
-        Führt den Benutzer durch die Dateneingabe und löst den 'process_data'-Event aus.
+        Guides the user through the data input process where they first provide all necessary information (host, volume, 
+        password, and output file path), and then allows them to modify specific fields or trigger the 'process_data' event.
         """
-        print("\n--- Dateneingabe ---")
-        host = input("Host-Datei Pfad: ").strip()
-        volume = input("Volume-Datei Pfad: ").strip()
-        password = input("Passwort: ").strip()
-        output = input("Ausgabedatei Pfad: ").strip()
+        # Step 1: Directly ask for all required fields
+        print("\nEnter the required file paths and password.")
+        host = input("Host file path: ").strip()
+        volume = input("Volume file path: ").strip()
+        password = input("Password: ").strip()
+        output = input("Output file path: ").strip()
 
-        print("Tippen Sie 'start', um zu beginnen.")
-        command = input("> ").strip().lower()
-        if command == "start":
-            self.event_manager.trigger_event("process_data", {
-                "host": host,
-                "volume": volume,
-                "password": password,
-                "output": output,
-            })
-        else:
-            print("Abgebrochen.")
+        while True:
+            # Step 2: Show the options to modify individual fields or start the processing
+            print("\nCurrent Settings")
+            print("------------------------------------------")
+            print(f"1: Host file path: {host}")
+            print(f"2: Volume file path: {volume}")
+            print(f"3: Password: {'*****' if password else 'Not Set'}")
+            print(f"4: Output file path: {output}")
+            print("\n")
+            print("5: Start data processing")
+            print("6: Cancel and restart")
+            print("\n")
+
+            choice = input("Please choose an option (you can change your input or start/cancel the process): ").strip()
+
+            if choice == "1":
+                host = input("Enter the host file path: ").strip()
+            elif choice == "2":
+                volume = input("Enter the volume file path: ").strip()
+            elif choice == "3":
+                password = input("Enter the password: ").strip()
+            elif choice == "4":
+                output = input("Enter the output file path: ").strip()
+            elif choice == "5":
+                # Check if all necessary fields are filled
+                if host and volume and password and output:
+                    self.event_manager.trigger_event("process_data", {
+                        "host": host,
+                        "volume": volume,
+                        "password": password,
+                        "output": output,
+                    })
+                    break  # Exit the loop once data is processed
+                else:
+                    print("All fields must be filled before starting the processing. Please complete the inputs.")
+            elif choice == "6":
+                print("Operation cancelled. Restarting data input process...")
+                return  # Restart the entire data input process by returning to the main menu
+            else:
+                print("Invalid selection. Please try again.")
 
     def edit_config(self):
         """
-        Änderung der Einstellungen in der config.json
+        Allows the user to modify settings in the config file (config.json).
+        Provides options to change the user interface, toggle verbose mode, and configure language settings.
         """
-        print("1: UserInterface wechseln")
-        print("2: Verbosemodus wechseln")
-        print("3: Spracheinstellungen")
-        print("4: Zurück ins Hauptmenü")
+        print("\n")
+        print("Settings")
+        print("------------------------------------------")
+        print("1: Change User Interface")
+        print("2: Toggle verbose mode")
+        print("3: Language settings")
+        print("4: Return to Main Menu")
+        print("\n")
 
-        choice = input("Bitte wählen Sie eine Option: ").strip()
+        choice = input("Please choose an option: ").strip()
 
         if choice == "1":
-            # Hier sollte das Event ausgelöst werden, um die UI zu wechseln
+            # Trigger the event to change the user interface
             self.event_manager.trigger_event("change_ui", None)
         elif choice == "2":
+            # Trigger the event to toggle verbose mode
             self.event_manager.trigger_event("change_verbose", None)
         elif choice == "3":
-            # Hier kannst du weitere Aktionen hinzufügen
-            print("Spracheneinstellungen sind noch nicht implementiert.")
+            # Language settings are not implemented yet
+            print("Language settings are not implemented.")
         elif choice == "4":
-            self.run()  # Zurück zum Hauptmenü
+            return  # Return to the main menu without reprinting the title
         else:
-            print("Ungültige Auswahl. Bitte versuchen Sie es erneut.")
-
+            print("Invalid selection. Please try again.")
 
     def trigger_change_language(self):
         """
-        Löst das Event 'change_language' aus.
+        Triggers the 'change_language' event to update language settings.
         """
-        print("\n--- Daten auflisten ---")
+        print("\n--- Listing data ---")
         self.event_manager.trigger_event("change_language", None)
 
     def trigger_change_ui(self):
         """
-        Löst das Event 'change_ui' aus.
+        Triggers the 'change_ui' event to update the user interface settings.
         """
-        print("\n--- Daten auflisten ---")
+        print("\n--- Listing data ---")
         self.event_manager.trigger_event("change_ui", None)
 
     def trigger_change_verbose(self):
         """
-        Löst das Event 'change_verbose' aus.
+        Triggers the 'change_verbose' event to toggle verbose mode settings.
         """
-        print("\n--- Daten auflisten ---")
+        print("\n--- Listing data ---")
         self.event_manager.trigger_event("change_verbose", None)
 
     def trigger_list_data(self):
         """
-        Löst das Event 'list_data' aus.
+        Triggers the 'list_data' event to list available data.
         """
-        print("\n--- Daten auflisten ---")
+        print("\n")
+        print("--- Listing data ---")
         self.event_manager.trigger_event("list_data", None)
 
     def show_result(self, result):
         """
-        Zeigt das Ergebnis der Verarbeitung an.
+        Displays the result of the data processing.
+        
+        Args:
+            result: The result of the processing, typically shown to the user.
         """
-        print(f"Ergebnis: {result}")
+        print(f"Result: {result}")
 
     def show_error(self, message):
         """
-        Zeigt eine Fehlermeldung an.
+        Displays an error message to the user.
+        
+        Args:
+            message: The error message to be shown.
         """
-        print(f"Fehler: {message}")
-
-
+        print(f"Error: {message}")
