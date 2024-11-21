@@ -40,3 +40,10 @@ class BaseUI(ABC):
             message (str): Die Fehlermeldung.
         """
         pass
+
+    @abstractmethod
+    def edit_config():
+        """
+        Menü zum Bearbeiten der Einstellungen in der Config
+
+        """
