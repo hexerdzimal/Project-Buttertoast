@@ -22,22 +22,13 @@ class BaseUI(ABC):
         pass
 
     @abstractmethod
-    def show_result(self, result):
+    def display_message(self, message, message_type):
         """
-        Zeigt das Ergebnis der Datenverarbeitung an.
-
+        Zeigt eine Nachricht basierend auf ihrem Typ an.
+        
         Args:
-            result (dict): Das Ergebnis der Verarbeitung.
-        """
-        pass
-
-    @abstractmethod
-    def show_error(self, message):
-        """
-        Zeigt eine Fehlermeldung an.
-
-        Args:
-            message (str): Die Fehlermeldung.
+            message (str): Die anzuzeigende Nachricht.
+            message_type (str): Typ der Nachricht (z.B. "info", "verbose", "error").
         """
         pass
 
@@ -47,3 +38,4 @@ class BaseUI(ABC):
         Menü zum Bearbeiten der Einstellungen in der Config
 
         """
+
