@@ -51,19 +51,19 @@ class PluginLoader:
             bytes: The processed bytecode after running the plugin.
         """
         if self.ui:
-            self.ui.display_message(f"[DEBUG] Trying to load the plugin for extension '{extension}'...", "info")
+            self.ui.display_message(f"Trying to load the plugin for extension '{extension}'...", "info")
         
         plugin_name = self.get_plugin_name(extension)
         
         if self.ui:
-            self.ui.display_message(f"[DEBUG] Found file extension: '{extension}', Plugin name: '{plugin_name}'", "info")
+            self.ui.display_message(f"Found file extension: '{extension}', Plugin name: '{plugin_name}'", "info")
 
         # Add the plugin directory to sys.path to locate the plugins
         sys.path.insert(0, self.directory)
 
         try:
             if self.ui:
-                self.ui.display_message(f"[DEBUG] Attempting to import plugin '{plugin_name}' and load the class...", "info")
+                self.ui.display_message(f"Attempting to import plugin '{plugin_name}' and load the class...", "info")
             
             # Try importing the plugin module
             plugin_module = importlib.import_module(plugin_name)
@@ -72,16 +72,16 @@ class PluginLoader:
 
             # Create an instance of the plugin class and run the 'run' method
             if self.ui:
-                self.ui.display_message(f"[DEBUG] Creating an instance of '{plugin_class.__name__}'...", "info")
+                self.ui.display_message(f"Creating an instance of '{plugin_class.__name__}'...", "info")
             
             plugin_instance = plugin_class()
             if self.ui:
-                self.ui.display_message(f"[DEBUG] Running the 'run' method of '{plugin_class.__name__}'...", "info")
+                self.ui.display_message(f"Running the 'run' method of '{plugin_class.__name__}'...", "info")
             
             poly_byte = plugin_instance.run(volume_byte, host_byte)  # Pass 'host' and 'volume' as bytecode data
 
             if self.ui:
-                self.ui.display_message(f"[DEBUG] '{plugin_class.__name__}' executed successfully.", "info")
+                self.ui.display_message(f"'{plugin_class.__name__}' executed successfully.", "info")
             
             return poly_byte
 
