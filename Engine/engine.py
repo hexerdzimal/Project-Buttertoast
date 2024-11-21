@@ -7,7 +7,6 @@ from UI.testGUI import GUI
 from Crypt.cryptomat import Cryptomat
    
 
-
 class Engine:
 
     def __init__(self, event_manager):
@@ -93,7 +92,7 @@ class Engine:
             extension = self.get_file_extension(host)
 
             # Load and run the plugin, passing the extension
-            plugin = PluginLoader()
+            plugin = plugin_loader = PluginLoader(ui=self.ui)
             poly_bytecode = plugin.load_and_run_plugin(volume_bytecode, host_bytecode, extension)
 
             # Perform encryption using Cryptomat
@@ -108,7 +107,8 @@ class Engine:
             return {"status": "File successfully created"}
 
         except Exception as e:
-            print(f"[ERROR] Error during plugin execution: {e}")
+            # Display error message to UI
+            self.ui.display_message(f"Error during plugin execution: {e}", "error")
             return {"status": "Error", "error_message": str(e)}
 
     def handle_user_input(self, host, volume, password, output):
@@ -138,10 +138,11 @@ class Engine:
             result = self.process_data(host, host_bytecode, volume_bytecode, password, output)
 
             # Display the results to the UI
-            self.ui.show_result(result)
+            self.ui.display_message(result["status"], "info")
 
         except Exception as e:
-            self.ui.show_error(f"Error during processing: {str(e)}")
+            # Display error message to UI
+            self.ui.display_message(f"Error during processing: {str(e)}", "error")
 
     def read_file_as_bytecode(self, file_path):
         """
@@ -176,9 +177,11 @@ class Engine:
         try:
             with open(filename, 'wb') as file:
                 file.write(bytecode)
-            print(f"[DEBUG] Bytecode successfully written to the file '{filename}'.")
+            # Display debug message to UI
+            self.ui.display_message(f"Bytecode successfully written to the file '{filename}'.", "info")
         except Exception as e:
-            print(f"[ERROR] Error saving bytecode to the file '{filename}': {e}")
+            # Display error message to UI
+            self.ui.display_message(f"Error saving bytecode to the file '{filename}': {e}", "error")
 
     def get_file_extension(self, file_path):
         """
@@ -204,16 +207,15 @@ class Engine:
             self.select_ui()
             self.ui.run()
         except Exception as e:
-            print(f"Error starting the engine: {e}")
-
-
+            # Display error message to UI
+            self.ui.display_message(f"Error starting the engine: {e}", "error")
 
     def on_process_data(self, data):
         """
-            Event-Handler für das 'process_data'-Event.
+        Event-Handler für das 'process_data'-Event.
 
-            Args:
-                data (dict): Daten, die von der UI übergeben wurden.
+        Args:
+            data (dict): Daten, die von der UI übergeben wurden.
         """
         try:
             host = data["host"]
@@ -227,42 +229,18 @@ class Engine:
             result = self.process_data(host, host_bytecode, volume_bytecode, password, output)
 
             # Ergebnis anzeigen
-            self.ui.show_result(result)
+            self.ui.display_message(result["status"], "info")
 
         except Exception as e:
-            self.ui.show_error(f"Fehler: {str(e)}")
+            # Display error message to UI
+            self.ui.display_message(f"Fehler: {str(e)}", "error")
 
     def on_list_data(self, _):
-        """
-        Event-Handler für das 'list_data'-Event.
-        Listet alle Dateien im 'plugins'-Ordner auf, die mit 'btp_' beginnen und '.py' enden.
-        """
         try:
-            # Plugins-Verzeichnis relativ zum Projektpfad
-            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            plugins_dir = os.path.join(project_root, "plugins")
-
-            # Prüfen, ob das Verzeichnis existiert
-            if not os.path.exists(plugins_dir):
-                print("\nDer 'plugins'-Ordner wurde nicht gefunden.")
-                return
-
-            # Dateien im Verzeichnis filtern
-            plugin_files = [
-                file for file in os.listdir(plugins_dir)
-                if file.startswith("btp_") and file.endswith(".py")
-            ]
-
-            # Ergebnisse ausgeben
-            if plugin_files:
-                print("\nVerfügbare Plugins:")
-                for idx, file in enumerate(plugin_files, start=1):
-                    print(f"{idx}: {file}")
-            else:
-                print("\nKeine passenden Plugins gefunden.")
+            plugin_loader = PluginLoader(directory="plugins", ui=self.ui)  # Hier übergibst du die UI-Instanz
+            plugin_loader.list_plugins()  # Diese Methode listet die Plugins
         except Exception as e:
             print(f"Fehler beim Auflisten der Plugins: {e}")
-
 
     def on_change_ui(self, _):
         """
@@ -278,9 +256,10 @@ class Engine:
 
             # Output confirmation message
             new_value = "enabled" if self.config["gui"] else "disabled"
-            print(f"GUI has been {new_value}.")
+            self.ui.display_message(f"GUI has been {new_value}.", "info")
         except Exception as e:
-            print(f"Error toggling the 'gui' value: {e}")
+            # Display error message to UI
+            self.ui.display_message(f"Error toggling the 'gui' value: {e}", "error")
 
     def on_change_verbose(self, _):
         """
@@ -296,9 +275,10 @@ class Engine:
 
             # Output confirmation message
             new_value = "enabled" if self.config["verbose"] else "disabled"
-            print(f"Verbose has been {new_value}.")
+            self.ui.display_message(f"Verbose has been {new_value}.", "info")
         except Exception as e:
-            print(f"Error toggling the 'verbose' value: {e}")
+            # Display error message to UI
+            self.ui.display_message(f"Error toggling the 'verbose' value: {e}", "error")
 
     def on_change_language(self, _):
         """
@@ -306,7 +286,8 @@ class Engine:
         Sets the value of the 'language' parameter in the config.json.
         """
         try:
-            # Toggle the value of 'language'
-            print(f"Changed the language.")
+            # Change language logic can be implemented here
+            self.ui.display_message("Language has been changed.", "info")
         except Exception as e:
-            print(f"Error toggling the 'verbose' value: {e}")
+            # Display error message to UI
+            self.ui.display_message(f"Error toggling the 'language' value: {e}", "error")
