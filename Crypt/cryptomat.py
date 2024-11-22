@@ -1,4 +1,5 @@
 # Autor: Fabian Kozlowski
+# Date: November 2024
 # Der cryptomat dient der Ver- und Entschlüsselung während des Prozesses zur Erstellung einer polyglotten Datei
 # Er unterstützt aktuell lediglich AES-XTS mit SHA512
 # Anmerkung: Tatsächlich wird stets nur der Header ver- und entschlüsselt
@@ -31,11 +32,15 @@ class Cryptomat:
     # Output:
     #       @re_encrypted_buttertoast, das modifizierte neu-verschlüsselte TrueCrypt-Volume
     def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> bytes:
+        # Salt des Polyglotts
+        salt_poly = self.__salty(encrypted_polyglot)  # 64 Bytes
+
         # Entschlüsselung des TC-Volumes
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
 
+        # ==> Kommentar 16.11.2024: ich kann statt mit originalen Salt auch direkt mit dem manipulierten Salt entschlüsseln!
+
         # Neu-Verschlüsselung des TC-Volumes mit dem Daten aus dem verschlüsselten Polyglott (Host SALT)
-        salt_poly = self.__salty(encrypted_polyglot) # 64 Bytes
         re_encrypted_volume = self.__encrypt_volume(salt_poly, decrypted_volume, passphrase)
 
         # Erstellung Buttertoast durch Kombination aus re_encrypted_volume und encrypted_polyglot
