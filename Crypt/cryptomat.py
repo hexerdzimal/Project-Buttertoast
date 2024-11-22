@@ -23,13 +23,24 @@ class Cryptomat:
     A class used to encrypt and decrypt data during the creation of polyglot files.
     This class focuses on the header of TrueCrypt volumes and manipulates the encryption
     using a modified salt derived from the polyglot host file.
+
+    Attributes:
+    ----------
+    ui : UI or None
+        Optional UI instance to display messages. If None, no messages will be displayed.
     """
 
-    def __init__(self):
+    def __init__(self, ui=None):
         """
         Initialize the Cryptomat class.
+
+        Parameters:
+        ----------
+        ui : UI, optional
+            Optional UI instance to display verbose messages during processing.
+            If None, no messages will be displayed.
         """
-        pass
+        self.ui = ui  # UI instance for displaying messages
 
     def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> bytes:
         """
@@ -47,16 +58,24 @@ class Cryptomat:
         bytes: The re-encrypted TrueCrypt volume (binary data), which includes the manipulated salt.
         """
         # Extract the salt from the polyglot file
+        self.ui.display_message(f"Extracting the SALT from the polyglot file...", "verbose")
         salt_poly = self.__salty(encrypted_polyglot)  # 64 bytes
+        self.ui.display_message(f"SALT extracted.", "verbose")
 
         # Decrypt the TrueCrypt volume
+        self.ui.display_message(f"Decrypting the given TrueCrypt-Volume...", "verbose")
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
+        self.ui.display_message(f"TrueCrypt-Volume decrypted.", "verbose")
 
         # Re-encrypt the volume using the salt from the polyglot host file
+        self.ui.display_message(f"Re-encrypting the given TrueCrypt-Volume...", "verbose")
         re_encrypted_volume = self.__encrypt_volume(salt_poly, decrypted_volume, passphrase)
+        self.ui.display_message(f"TrueCrypt-Volume re-encrypted with the manipulated SALT.", "verbose")
 
         # Combine the re-encrypted header and the original data/host data to create the polyglot
+        self.ui.display_message(f"Creating the buttertoast aka polyglot file...", "verbose")
         encrypted_buttertoast = re_encrypted_volume[:512] + encrypted_polyglot[512:]
+        self.ui.display_message(f"Buttertoast aka polyglot file created.", "verbose")
 
         return encrypted_buttertoast
 
@@ -102,6 +121,7 @@ class Cryptomat:
         if not isinstance(salt, bytes):
             raise TypeError("SALT must be of type 'bytes' for key derivation.")
 
+        self.ui.display_message(f"Deriving AES-keys...", "verbose")
         iterations = 1000
         hash_algo = hashes.SHA512()
         kdf = PBKDF2HMAC(
@@ -113,6 +133,7 @@ class Cryptomat:
         key = kdf.derive(passphrase.encode())
         aes_key1 = key[:32]
         aes_key2 = key[32:]
+        self.ui.display_message(f"AES-keys derived.", "verbose")
         return aes_key1, aes_key2
 
     def __decrypt_volume(self, encrypted_volume: bytes, passphrase: str) -> bytes:
