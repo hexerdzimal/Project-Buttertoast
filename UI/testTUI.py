@@ -184,4 +184,4 @@ class TUI(BaseUI):
         elif message_type == "message":
             print(f"{message}")
         else:
-            print(f"{message}")
+            print(f"[UNKNOWN] {message}")
