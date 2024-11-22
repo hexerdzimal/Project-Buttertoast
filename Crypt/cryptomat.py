@@ -1,74 +1,106 @@
-# Autor: Fabian Kozlowski
-# Date: November 2024
-# Der cryptomat dient der Ver- und Entschlüsselung während des Prozesses zur Erstellung einer polyglotten Datei
-# Er unterstützt aktuell lediglich AES-XTS mit SHA512
-# Anmerkung: Tatsächlich wird stets nur der Header ver- und entschlüsselt
-# INPUT: Verschlüsseltes TrueCrypt-Volume (Binaerdaten / Bytecode), Passwort, Verschlüsseltes TrueCrypt-Polyglott (Binaerdaten / Bytecode)
-# OUTPUT: "Neu"-Verschlüsseltes TrueCrypt-Volume (Binaerdaten / Bytecode)
+# Author: Fabian Kozlowski
+# Date: November 22, 2024
+# The Cryptomat is used for encryption and decryption during the process of creating a polyglot file.
+# Currently, it only supports AES-XTS with SHA512.
+# Note: Only the header is encrypted and decrypted.
+# INPUT: Encrypted TrueCrypt volume (binary data/bytecode), password, encrypted TrueCrypt polyglot (binary data/bytecode)
+# OUTPUT: Re-encrypted TrueCrypt volume (binary data/bytecode)
 
 import sys
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-# AES-XTS Konfiguration
+# AES-XTS configuration
 AES_KEY_SIZE = 64
 SALT_SIZE = 64
-FULL_HEADER_SIZE = 512  # Header-Size eines TrueCrypt-Volumes inklusive SALT_SIZE
+FULL_HEADER_SIZE = 512  # Header size of a TrueCrypt volume, including SALT_SIZE
 REAL_HEADER_SIZE = FULL_HEADER_SIZE - SALT_SIZE  # 448 bytes
-TWEAK = b"\x00" * 16  # Der TWEAK bei AES-XTS besteht aus 16 Bytes, der Einfachheithalber als Nullen deklariert, kann auch random sein
+TWEAK = b"\x00" * 16  # The tweak for AES-XTS consists of 16 bytes, here set to zeros for simplicity, but can be randomized.
 
 class Cryptomat:
+    """
+    A class used to encrypt and decrypt data during the creation of polyglot files.
+    This class focuses on the header of TrueCrypt volumes and manipulates the encryption
+    using a modified salt derived from the polyglot host file.
+    """
+
     def __init__(self):
+        """
+        Initialize the Cryptomat class.
+        """
         pass
 
-    # Methode koordiniert die Entschlüsselung und Neu-Verschlüsselung. Sie entschlüsselt ein gegebenes TrueCrypt-Volume @encrypted_volume_1 und
-    # versichert, dass dieser entschlüsselte Header (448 bytes ohne SALT) zum neuen Header von encrypted_volume_2 wird, welches
-    # dann mit dem SALT von encrypted_volume_2 wieder verschlüsselt wird und zurückgegeben wird.
-    # Input:
-    #       @encrypted_volume, das unmodifizierte originale TrueCrypt-Volume
-    #       @encrypted_polyglot, das modifizierte TrueCrypt-Volume welches den manipulierten SALT beinhaltet samt Host Datei
-    #       @passphrase, das Passwort des TrueCrypt-Volumes
-    # Output:
-    #       @re_encrypted_buttertoast, das modifizierte neu-verschlüsselte TrueCrypt-Volume
     def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> bytes:
-        # Salt des Polyglotts
-        salt_poly = self.__salty(encrypted_polyglot)  # 64 Bytes
+        """
+        Coordinates decryption and re-encryption of a TrueCrypt volume header.
+        The method ensures that the decrypted header (448 bytes excluding the salt)
+        from the original volume becomes the new header of the polyglot volume.
+        It uses the manipulated salt from the polyglot file for encryption.
 
-        # Entschlüsselung des TC-Volumes
+        Parameters:
+        encrypted_volume (bytes): The original unmodified TrueCrypt volume.
+        encrypted_polyglot (bytes): The modified TrueCrypt volume containing the manipulated salt and host file data.
+        passphrase (str): The password for the TrueCrypt volume.
+
+        Returns:
+        bytes: The re-encrypted TrueCrypt volume (binary data), which includes the manipulated salt.
+        """
+        # Extract the salt from the polyglot file
+        salt_poly = self.__salty(encrypted_polyglot)  # 64 bytes
+
+        # Decrypt the TrueCrypt volume
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
 
-        # ==> Kommentar 16.11.2024: ich kann statt mit originalen Salt auch direkt mit dem manipulierten Salt entschlüsseln!
-
-        # Neu-Verschlüsselung des TC-Volumes mit dem Daten aus dem verschlüsselten Polyglott (Host SALT)
+        # Re-encrypt the volume using the salt from the polyglot host file
         re_encrypted_volume = self.__encrypt_volume(salt_poly, decrypted_volume, passphrase)
 
-        # Erstellung Buttertoast durch Kombination aus re_encrypted_volume und encrypted_polyglot
-        # :512, darin sind der manipulierte SALT und der TrueCrypt-Header (neu verschlüsselt mit dem manipulierten SALT),
-        # 512:, darin befindet sic - in genannter Reihenfolge - das TC-Volume (die eigentliche Daten) gefolgt von den Host-Daten
+        # Combine the re-encrypted header and the original data/host data to create the polyglot
         encrypted_buttertoast = re_encrypted_volume[:512] + encrypted_polyglot[512:]
 
         return encrypted_buttertoast
 
-    # Funktion gibt den SALT zurück
     def __salty(self, encrypted_volume) -> bytes:
-        # -----------------------WORKAROUND---------------------------------------
-        # WORKAROUND: Bei dem WAV (gefixed von Stefan) und TIFF skript liegt ein bytearray an! => Konvertierung!!!!
+        """
+        Extracts the salt (first 64 bytes) from the provided encrypted volume.
+
+        Parameters:
+        encrypted_volume (bytes or bytearray): The encrypted volume data.
+
+        Returns:
+        bytes: The extracted salt.
+
+        Raises:
+        ValueError: If the extracted salt is not of type 'bytes'.
+        """
+        # Workaround: Convert bytearray to bytes for compatibility
         if isinstance(encrypted_volume, bytearray):
             encrypted_volume = bytes(encrypted_volume)
-        #---------------------------------------------------------------------------
 
+        # Extract the first 64 bytes as salt
         so_salty = encrypted_volume[:64]
-        # Error handling für den Fall das so_salty nicht in bytes vorliegt
+
+        # Validate the salt type
         if not isinstance(so_salty, bytes):
-            raise ValueError("SALT muss vom Typ 'bytes' sein.")
+            raise ValueError("SALT must be of type 'bytes'.")
         return so_salty
 
-    # Funktion zur Schlüsselableitung für AES
     def __derive_aes_keys(self, salt: bytes, passphrase: str) -> tuple:
-        # Error handling prüfe, ob der SALT tatsächlich in bytes vorliegt
+        """
+        Derives AES-XTS encryption keys using the provided salt and passphrase.
+
+        Parameters:
+        salt (bytes): The salt used for key derivation.
+        passphrase (str): The passphrase used for encryption.
+
+        Returns:
+        tuple: A tuple containing two AES keys (32 bytes each).
+
+        Raises:
+        TypeError: If the provided salt is not of type 'bytes'.
+        """
         if not isinstance(salt, bytes):
-            raise TypeError("SALT muss vom Typ 'bytes' sein um Schlüssel ableiten zu können.")
+            raise TypeError("SALT must be of type 'bytes' for key derivation.")
 
         iterations = 1000
         hash_algo = hashes.SHA512()
@@ -83,48 +115,62 @@ class Cryptomat:
         aes_key2 = key[32:]
         return aes_key1, aes_key2
 
-    # Funktion zur Entschlüsselung eines verschlüsselten Volumens
     def __decrypt_volume(self, encrypted_volume: bytes, passphrase: str) -> bytes:
-        # Extrahiere den Salt aus den ersten 64 Bytes des verschlüsselten Volumens
+        """
+        Decrypts the provided TrueCrypt volume using AES-XTS with the derived keys.
+
+        Parameters:
+        encrypted_volume (bytes): The encrypted TrueCrypt volume.
+        passphrase (str): The passphrase for decryption.
+
+        Returns:
+        bytes: The decrypted volume, including the salt.
+
+        Raises:
+        SystemExit: If the decrypted header does not contain the 'TRUE' magic number.
+        """
+        # Extract the salt from the first 64 bytes
         salt = encrypted_volume[:64]
 
-        # Erzeuge die AES-Schlüssel mit dem Salt und der Passphrase
+        # Derive the AES keys
         aes_key1, aes_key2 = self.__derive_aes_keys(salt, passphrase)
 
-        # Initialisiere den AES-XTS Cipher zum Entschlüsseln
+        # Initialize the AES-XTS cipher for decryption
         cipher = Cipher(algorithms.AES(aes_key1 + aes_key2), modes.XTS(TWEAK))
         decryptor = cipher.decryptor()
 
-        # Entschlüsseln des Volumens (ohne Salt)
+        # Decrypt the volume (excluding the salt)
         decrypted_data = decryptor.update(encrypted_volume[64:]) + decryptor.finalize()
 
-        # Überprüfung, ob die Entschlüsselung erfolgreich war und ein ASCII 'TRUE' erzeugt wurde
+        # Verify the magic number 'TRUE' in the decrypted header
         if decrypted_data[:4] != b"TRUE":
-            print("Fehler: Magic Number 'TRUE' nicht gefunden. Entschlüsselung fehlgeschlagen.")
+            print("Error: Magic number 'TRUE' not found. Decryption failed.")
             sys.exit(1)
 
-        # Gebe die entschlüsselten Daten zurück
+        # Return the decrypted data, including the salt
         return salt + decrypted_data
 
-    # Funktion zur Verschlüsselung eines entschlüsselten Volumens
     def __encrypt_volume(self, salty: bytes, decrypted_volume: bytes, passphrase: str) -> bytes:
-        # Extrahiere den Salt aus den ersten 64 Bytes des entschlüsselten Volumens
-        #salt = decrypted_volume[:64]
+        """
+        Encrypts the provided decrypted volume using AES-XTS with the given salt.
 
-        # Erzeuge die AES-Schlüssel mit dem Salt und der Passphrase
+        Parameters:
+        salty (bytes): The salt used for encryption.
+        decrypted_volume (bytes): The decrypted TrueCrypt volume data.
+        passphrase (str): The passphrase for encryption.
+
+        Returns:
+        bytes: The encrypted volume, including the salt.
+        """
+        # Derive the AES keys using the salt
         aes_key1, aes_key2 = self.__derive_aes_keys(salty, passphrase)
 
-        # Initialisiere den AES-XTS Cipher zum Verschlüsseln
+        # Initialize the AES-XTS cipher for encryption
         cipher = Cipher(algorithms.AES(aes_key1 + aes_key2), modes.XTS(TWEAK))
         encryptor = cipher.encryptor()
 
-        # Verschlüssele das Volume (ohne Salt)
+        # Encrypt the volume (excluding the salt)
         encrypted_data = encryptor.update(decrypted_volume[64:]) + encryptor.finalize()
 
-        # Gebe die verschlüsselten Daten zurück
+        # Return the encrypted data, including the salt
         return salty + encrypted_data
-
-
-
-
-
