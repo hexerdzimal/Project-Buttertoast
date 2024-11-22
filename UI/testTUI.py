@@ -19,7 +19,7 @@ class TUI(BaseUI):
         """
         print(r"""
             +===================================================================================================+
-            |                                                                         Version: 0.2 (cold) 2024  |
+            |                                                                         Version: 0.3 (cold) 2024  |
             |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
             |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
             |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
@@ -174,20 +174,14 @@ class TUI(BaseUI):
         print("--- Listing data ---")
         self.event_manager.trigger_event("list_data", None)
 
-    def show_result(self, result):
-        """
-        Displays the result of the data processing.
-        
-        Args:
-            result: The result of the processing, typically shown to the user.
-        """
-        print(f"Result: {result}")
-
-    def show_error(self, message):
-        """
-        Displays an error message to the user.
-        
-        Args:
-            message: The error message to be shown.
-        """
-        print(f"Error: {message}")
+    def display_message(self, message, message_type):
+        if message_type == "info":
+            print(f"[INFO] {message}")
+        elif message_type == "verbose":
+            print(f"[VERBOSE] {message}")
+        elif message_type == "error":
+            print(f"[ERROR] {message}")
+        elif message_type == "message":
+            print(f"{message}")
+        else:
+            print(f"{message}")
