@@ -9,49 +9,55 @@ class Tiff(plugin_Interface):
         endian = '<' if byte_order == 'II' else '>'
 
         polyglott = bytearray(tiff_host[:8]) + bytearray(rest_of_crypt) + bytearray(tiff_host[8:])
-        
-        # Funktion, um alle relevanten Offsets in einer TIFF-Struktur zu finden
-        def find_offsets(polyglott, ifd_offset, endian):
-            offsets = []
-            while ifd_offset != 0:
-                # Verhindert das Lesen außerhalb des Datei-Arrays
-                if ifd_offset + 2 > len(polyglott):
-                    break
 
-                # Anzahl der Einträge im aktuellen IFD
-                num_entries = struct.unpack(endian + 'H', polyglott[ifd_offset:ifd_offset + 2])[0]
-                
-                # Durchlaufe alle Tags im IFD
-                for i in range(num_entries):
-                    tag_start = ifd_offset + 2 + 12 * i
-                    if tag_start + 12 > len(polyglott):
+            def find_and_adjust_offsets(polyglott, ifd_offset, endian, adjustment):
+
+                while ifd_offset != 0:
+
+                    # read number of ifd entries
+                    num_entries = struct.unpack(endian + 'H', polyglott[ifd_offset:ifd_offset + 2])[0]
+
+                    for i in range(num_entries):
+                        tag_start = ifd_offset + 2 + 12 * i
+
+                        # read tag data
+                        tag_data = polyglott[tag_start:tag_start + 12]
+                        tag_id, data_type, value_count, value_or_offset = struct.unpack(endian + 'HHII', tag_data)
+
+                        # check tag for offset
+                        if value_count * struct.calcsize('I') > 4:
+                            offset_position = tag_start + 8
+                            offset_value = struct.unpack(endian + 'I', polyglott[offset_position:offset_position + 4])[
+                                0]
+
+                            # adjust offset
+                            new_offset = offset_value + adjustment
+                            polyglott[offset_position:offset_position + 4] = struct.pack(endian + 'I', new_offset)
+
+                    # read next offset
+                    next_ifd_offset_start = ifd_offset + 2 + 12 * num_entries
+                    if next_ifd_offset_start + 4 > len(polyglott):
                         break
+                    next_ifd_offset = \
+                    struct.unpack(endian + 'I', polyglott[next_ifd_offset_start:next_ifd_offset_start + 4])[0]
 
-                    # Lese Tag-Daten
-                    tag_data = polyglott[tag_start:tag_start + 12]
-                    tag_id, data_type, value_count, value_or_offset = struct.unpack(endian + 'HHII', tag_data)
+                    # adjust next offset
+                    if next_ifd_offset != 0:
+                        adjusted_next_ifd_offset = next_ifd_offset + adjustment
+                        polyglott[next_ifd_offset_start:next_ifd_offset_start + 4] = struct.pack(endian + 'I',
+                                                                                                 adjusted_next_ifd_offset)
 
-                    # Prüfe, ob ein Offset zu großen Daten führt (mehr als 4 Byte), dann speichere es
-                    if value_count * struct.calcsize('I') > 4:
-                        offsets.append(value_or_offset)
+                    # recurse through offsets
+                    ifd_offset = next_ifd_offset
 
-                # Nächster IFD-Offset (4 Bytes nach den Einträgen)
-                next_ifd_offset_start = ifd_offset + 2 + 12 * num_entries
-                if next_ifd_offset_start + 4 > len(polyglott):
-                    break
-                ifd_offset = struct.unpack(endian + 'I', polyglott[next_ifd_offset_start:next_ifd_offset_start + 4])[0]
+            # start with first IFD-Offset
+            first_ifd_offset = struct.unpack(endian + 'I', tiff_host[4:8])[0]
 
-            return offsets
+            # first adjusted IFD-Offset
+            adjusted_ifd_offset = first_ifd_offset + crypt_length
+            polyglott[4:8] = struct.pack(endian + 'I', adjusted_ifd_offset)
 
-        # Starte die Offset-Suche vom ersten IFD aus
-        first_ifd_offset = struct.unpack(endian + 'I', tiff_host[4:8])[0]
-        offsets = find_offsets(polyglott, first_ifd_offset, endian)
-        
-        # Offsets anpassen
-        for offset in offsets:
-            offset_position = polyglott.find(struct.pack(endian + 'I', offset))
-            if offset_position != -1:
-                new_offset = offset + crypt_length
-                polyglott[offset_position:offset_position + 4] = struct.pack(endian + 'I', new_offset)
+            # Adjust Offsets
+            find_and_adjust_offsets(polyglott, adjusted_ifd_offset, endian, crypt_length)
 
-        return polyglott
+            return polyglott
