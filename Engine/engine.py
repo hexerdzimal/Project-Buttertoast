@@ -208,6 +208,7 @@ class Engine:
             self.ui.run()
         except Exception as e:
             # Display error message to UI
+            print(f"Error starting the engine: {e}", "error")
             self.ui.display_message(f"Error starting the engine: {e}", "error")
 
     def on_process_data(self, data):
