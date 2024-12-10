@@ -136,6 +136,14 @@ class Cryptomat:
         self.ui.display_message(f"AES-keys derived.", "verbose")
         return aes_key1, aes_key2
 
+    def __wrong_password_error(self):
+        """
+        Function handles the error when the  Magic-Header 'TRUE' cannot be found.
+        If this happens, the function returns an error message to the user.
+        """
+        #self.ui.display_message("Wrong password or invalid TrueCrypt-Volume.", "error")
+        return "Wrong password or invalid TrueCrypt-Volume."
+
     def __decrypt_volume(self, encrypted_volume: bytes, passphrase: str) -> bytes:
         """
         Decrypts the provided TrueCrypt volume using AES-XTS with the derived keys.
@@ -148,7 +156,7 @@ class Cryptomat:
         bytes: The decrypted volume, including the salt.
 
         Raises:
-        SystemExit: If the decrypted header does not contain the 'TRUE' magic number.
+        error: If the decrypted header does not contain the 'TRUE' magic number, an error handling function is being called.
         """
         # Extract the salt from the first 64 bytes
         salt = encrypted_volume[:64]
@@ -166,7 +174,7 @@ class Cryptomat:
         # Verify the magic number 'TRUE' in the decrypted header
         if decrypted_data[:4] != b"TRUE":
             print("Error: Magic number 'TRUE' not found. Decryption failed.")
-            sys.exit(1)
+            return self.__wrong_password_error()
 
         # Return the decrypted data, including the salt
         return salt + decrypted_data
