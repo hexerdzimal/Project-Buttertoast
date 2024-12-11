@@ -96,7 +96,7 @@ class Engine:
             poly_bytecode = plugin.load_and_run_plugin(volume_bytecode, host_bytecode, extension)
 
             # Perform encryption using Cryptomat
-            cryptomat = Cryptomat()
+            cryptomat = Cryptomat(ui=self.ui)
             buttertoast = cryptomat.cryptomator(volume_bytecode, poly_bytecode, password)
 
             # Save the result to a file
