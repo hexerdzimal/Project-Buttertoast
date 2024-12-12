@@ -6,7 +6,6 @@
 # INPUT: Encrypted TrueCrypt volume (binary data/bytecode), password, encrypted TrueCrypt polyglot (binary data/bytecode)
 # OUTPUT: Re-encrypted TrueCrypt volume (binary data/bytecode)
 
-import sys
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -36,13 +35,13 @@ class Cryptomat:
 
         Parameters:
         ----------
-        ui : UI, optional
+        ui : UI, not mandatory
             Optional UI instance to display verbose messages during processing.
             If None, no messages will be displayed.
         """
         self.ui = ui  # UI instance for displaying messages
 
-    def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> bytes:
+    def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> str | bytes:
         """
         Coordinates decryption and re-encryption of a TrueCrypt volume header.
         The method ensures that the decrypted header (448 bytes excluding the salt)
@@ -55,6 +54,7 @@ class Cryptomat:
         passphrase (str): The password for the TrueCrypt volume.
 
         Returns:
+        str: The error message when the password was wrong.
         bytes: The re-encrypted TrueCrypt volume (binary data), which includes the manipulated salt.
         """
         # Extract the salt from the polyglot file
@@ -66,6 +66,12 @@ class Cryptomat:
         self.ui.display_message(f"Decrypting the given TrueCrypt-Volume...", "verbose")
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
         self.ui.display_message(f"TrueCrypt-Volume decrypted.", "verbose")
+
+        # Check if the decryption was a success, meaning we got a TRUE
+        # If it was not, the cryptomator returns a String with the error msg that the password was wrong or the TrueCrypt Volume is invalid
+        if isinstance(decrypted_volume, str):
+            # Return that string as the final result (error message)
+            return "Wrong password provided or invalid TrueCrypt-Volume!"
 
         # Re-encrypt the volume using the salt from the polyglot host file
         self.ui.display_message(f"Re-encrypting the given TrueCrypt-Volume...", "verbose")
@@ -136,7 +142,7 @@ class Cryptomat:
         self.ui.display_message(f"AES-keys derived.", "verbose")
         return aes_key1, aes_key2
 
-    def __decrypt_volume(self, encrypted_volume: bytes, passphrase: str) -> bytes:
+    def __decrypt_volume(self, encrypted_volume: bytes, passphrase: str) -> str | bytes:
         """
         Decrypts the provided TrueCrypt volume using AES-XTS with the derived keys.
 
@@ -145,10 +151,8 @@ class Cryptomat:
         passphrase (str): The passphrase for decryption.
 
         Returns:
+        str: The error message if the password was wrong.
         bytes: The decrypted volume, including the salt.
-
-        Raises:
-        SystemExit: If the decrypted header does not contain the 'TRUE' magic number.
         """
         # Extract the salt from the first 64 bytes
         salt = encrypted_volume[:64]
@@ -166,7 +170,8 @@ class Cryptomat:
         # Verify the magic number 'TRUE' in the decrypted header
         if decrypted_data[:4] != b"TRUE":
             print("Error: Magic number 'TRUE' not found. Decryption failed.")
-            sys.exit(1)
+            # Return an error string directly here
+            return "Wrong password provided or invalid TrueCrypt-Volume."
 
         # Return the decrypted data, including the salt
         return salt + decrypted_data
