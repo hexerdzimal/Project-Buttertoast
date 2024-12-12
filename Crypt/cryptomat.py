@@ -4,7 +4,7 @@
 # Currently, it only supports AES-XTS with SHA512.
 # Note: Only the header is encrypted and decrypted.
 # INPUT: Encrypted TrueCrypt volume (binary data/bytecode), password, encrypted TrueCrypt polyglot (binary data/bytecode)
-# OUTPUT: Re-encrypted TrueCrypt volume (binary data/bytecode)
+# OUTPUT: Re-encrypted TrueCrypt volume (binary data/bytecode) or a String with an Error-Message if the password was wrong
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
