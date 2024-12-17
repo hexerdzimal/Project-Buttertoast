@@ -4,7 +4,9 @@
 # Currently, it only supports AES-XTS with SHA512.
 # Note: Only the header is encrypted and decrypted.
 # INPUT: Encrypted TrueCrypt volume (binary data/bytecode), password, encrypted TrueCrypt polyglot (binary data/bytecode)
+
 # OUTPUT: Re-encrypted TrueCrypt volume (binary data/bytecode) or a String with an Error-Message if the password was wrong
+
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -35,13 +37,17 @@ class Cryptomat:
 
         Parameters:
         ----------
+
         ui : UI, not mandatory
+
             Optional UI instance to display verbose messages during processing.
             If None, no messages will be displayed.
         """
         self.ui = ui  # UI instance for displaying messages
 
+
     def cryptomator(self, encrypted_volume: bytes, encrypted_polyglot: bytes, passphrase: str) -> str | bytes:
+
         """
         Coordinates decryption and re-encryption of a TrueCrypt volume header.
         The method ensures that the decrypted header (448 bytes excluding the salt)
@@ -55,6 +61,8 @@ class Cryptomat:
 
         Returns:
         str: The error message when the password was wrong.
+
+
         bytes: The re-encrypted TrueCrypt volume (binary data), which includes the manipulated salt.
         """
         # Extract the salt from the polyglot file
@@ -142,7 +150,9 @@ class Cryptomat:
         self.ui.display_message(f"AES-keys derived.", "verbose")
         return aes_key1, aes_key2
 
+
     def __decrypt_volume(self, encrypted_volume: bytes, passphrase: str) -> str | bytes:
+
         """
         Decrypts the provided TrueCrypt volume using AES-XTS with the derived keys.
 
@@ -151,8 +161,10 @@ class Cryptomat:
         passphrase (str): The passphrase for decryption.
 
         Returns:
+
         str: The error message if the password was wrong.
         bytes: The decrypted volume, including the salt.
+
         """
         # Extract the salt from the first 64 bytes
         salt = encrypted_volume[:64]
@@ -170,6 +182,7 @@ class Cryptomat:
         # Verify the magic number 'TRUE' in the decrypted header
         if decrypted_data[:4] != b"TRUE":
             print("Error: Magic number 'TRUE' not found. Decryption failed.")
+
             # Return an error string directly here
             return "Wrong password provided or invalid TrueCrypt-Volume."
 
