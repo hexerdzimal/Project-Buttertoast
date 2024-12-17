@@ -1,210 +1,267 @@
 from UI.testMasterUI import BaseUI
-from PySide6.QtCore import QPropertyAnimation, QSize, Qt 
+from PySide6.QtCore import QPropertyAnimation, Qt
+from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QPushButton, QHBoxLayout,
-    QVBoxLayout, QWidget, QMessageBox, QLineEdit, QSplitter, QTextEdit, QFileDialog
+
+    QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout,
+    QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox
+
 )
 import sys
+
+class FileButton(QPushButton):
+    """A custom button that supports drag-and-drop functionality."""
+    def __init__(self, label, parent=None, drop_handler=None):
+        super().__init__(label, parent)
+        self.setAcceptDrops(True)
+        self.drop_handler = drop_handler  # Callback function to process the dropped file
+
+    def dragEnterEvent(self, event):
+        """Allow files to be dropped when dragged into the button."""
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        """Process the file when it is dropped."""
+        urls = event.mimeData().urls()
+        if urls:
+            file_path = urls[0].toLocalFile()
+            if self.drop_handler: # If a handler is defined
+                self.drop_handler(file_path)
 
 class GUI(BaseUI):
     def __init__(self, event_manager):
         super().__init__(event_manager)
+
+        # Attributes for files and save locations
+        self.host_file = None
+        self.guest_file = None
+        self.save_location = None
 
         if not QApplication.instance():
             self.app = QApplication(sys.argv)
         else:
             self.app = QApplication.instance()
 
-        # Hauptfenster erstellen
+        # Create main window
         self.window = QMainWindow()
-        self.window.setWindowTitle("GUI mit Drag and Drop und Button")
-        self.window.setGeometry(100, 100, 700, 400)
 
-        # Zentrales Widget erstellen
+        self.window.setWindowTitle("Buttertoast")
+        self.window.setGeometry(100, 100, 600, 600)
+
+        # Create central widget
         central_widget = QWidget()
         self.window.setCentralWidget(central_widget)
+        self.window.setWindowIcon(QIcon("res/BuToTransp.png"))
 
-        # Hauptlayout (vertikal) erstellen
-        main_layout = QVBoxLayout()
+        # Add background image
+        self.background_label = QLabel(central_widget)
+        self.background_label.setPixmap(QPixmap("res/BuToTransp.png"))
+        self.background_label.setScaledContents(True)
+        self.background_label.setGeometry(0, 0, 600, 600)
 
-        # Drei horizontale Abschnitte (Labels als Platzhalter)
-        top_widget = QWidget()  # Für die horizontale Anordnung der drei vertikalen Layouts
-        middle_label = QLabel("Mittlerer Bereich")
-        bottom_label = QLabel("Unterer Bereich")
+        # Main layout (vertical)
+        main_layout = QVBoxLayout(central_widget)
 
-        # Horizontales Layout für die mittlere Aufteilung
-        top_layout = QHBoxLayout()
+        # Container for file buttons (Host, Guest, Save Location)
+        file_buttons_layout = QHBoxLayout()
 
-        # Drei vertikale Layouts in der Mitte hinzufügen
-        left_layout = QVBoxLayout()
-        center_layout = QVBoxLayout()
-        right_layout = QVBoxLayout()
+        self.host_button = FileButton("Select Host File", central_widget, 
+                                      drop_handler=lambda path: self.handle_dropped_file("Host", path))
+        self.guest_button = FileButton("Select Guest File", central_widget, 
+                                       drop_handler=lambda path: self.handle_dropped_file("Guest", path))
+        self.save_button = QPushButton("Select Save Location", central_widget)
 
-        # Labels für die vertikalen Layouts
-        left_label = QLabel("Linker Bereich")
-        center_label = QLabel("Mittlerer Bereich")
-        right_label = QLabel("Rechter Bereich")
+        # Button actions
+        self.host_button.clicked.connect(lambda: self.open_file("Host"))
+        self.guest_button.clicked.connect(lambda: self.open_file("Guest"))
+        self.save_button.clicked.connect(self.save_file)
 
-        left_layout.addWidget(left_label, alignment=Qt.AlignTop)
-        center_layout.addWidget(center_label, alignment=Qt.AlignTop)
-        right_layout.addWidget(right_label, alignment=Qt.AlignTop)
+        file_buttons_layout.addWidget(self.host_button)
+        file_buttons_layout.addWidget(self.guest_button)
+        file_buttons_layout.addWidget(self.save_button)
 
-        # Drag and Drop und Button für den linken Bereich
-        self.left_drop_area, self.left_file_path_label = self.create_drag_and_drop_button(is_left=True)
+        # Fix the file buttons at the top
+        file_buttons_container = QWidget()
+        file_buttons_container.setLayout(file_buttons_layout)
+        central_widget.layout().addWidget(file_buttons_container)
 
-        # Drag and Drop und Button für den rechten Bereich
-        self.right_drop_area, self.right_file_path_label = self.create_drag_and_drop_button(is_left=False)
+        # Password field
+        self.password_entry = QLineEdit(central_widget)
+        self.password_entry.setEchoMode(QLineEdit.Password)
+        self.password_entry.setPlaceholderText("Enter Password")
+        self.password_entry.textChanged.connect(self.update_execute_button_state)
 
-        # Hinzufügen von Drop-Bereich und Button zum linken Layout
-        left_layout.addWidget(self.left_drop_area)
-        left_layout.addWidget(self.left_file_path_label)  # Label für den Dateipfad
+        self.show_password_checkbox = QCheckBox("Show Password", central_widget)
+        self.show_password_checkbox.stateChanged.connect(self.toggle_password)
 
-        # Hinzufügen von Drop-Bereich und Button zum rechten Layout
-        right_layout.addWidget(self.right_drop_area)
-        right_layout.addWidget(self.right_file_path_label)  # Label für den Dateipfad
+        # Execute and Cancel buttons
+        self.execute_button = QPushButton("Execute", central_widget)
+        self.execute_button.setEnabled(False)  # Initially disabled
+        self.cancel_button = QPushButton("Cancel", central_widget)
+        self.execute_button.clicked.connect(self.on_execute_click)
+        self.cancel_button.clicked.connect(self.on_exit_click)
 
-        # Vertikale Layouts ins horizontale Layout einfügen
-        top_layout.addLayout(left_layout)
-        top_layout.addLayout(center_layout)
-        top_layout.addLayout(right_layout)
-
-        # Mittleres Widget mit dem horizontalen Layout verknüpfen
-        top_widget.setLayout(top_layout)
-
-        # Bereiche zum Hauptlayout hinzufügen
-        main_layout.addWidget(top_widget)
-        main_layout.addWidget(middle_label)
-
-        # Log-Ausgabe (dies ist eine Beispielausgabe, kannst es anpassen)
-        self.log_output = QTextEdit()
+        # Log output
+        self.log_output = QTextEdit(central_widget)
         self.log_output.setReadOnly(True)
-        self.log_output.setPlainText("Log-Ausgabe wird hier angezeigt...")
 
-        # Button zum Ein- und Ausklappen des Log-Fensters
-        self.toggle_log_button = QPushButton("Log anzeigen", self.window)
+        # Log toggle button
+        self.toggle_log_button = QPushButton("Show Log", central_widget)
         self.toggle_log_button.setCheckable(True)
         self.toggle_log_button.clicked.connect(self.toggle_log_window)
 
-        # Layout für den Log-Bereich (unten)
-        log_layout = QVBoxLayout()
-        log_layout.addWidget(self.log_output)
-        log_layout.addWidget(self.toggle_log_button)
+        # Animation for log
+        self.animation = QPropertyAnimation(self.log_output, b"maximumHeight")
+        self.animation.setDuration(300)
 
-        # Log-Bereich in den unteren Bereich (bottom_label) hinzufügen
-        bottom_widget = QWidget()
-        bottom_widget.setLayout(log_layout)
-        main_layout.addWidget(bottom_widget)
+        # Layouts
+        # File selection buttons
+        file_buttons_layout = QHBoxLayout()
+        file_buttons_layout.addWidget(self.host_button)
+        file_buttons_layout.addWidget(self.guest_button)
+        file_buttons_layout.addWidget(self.save_button)
 
-        # Hauptlayout dem zentralen Widget zuweisen
-        central_widget.setLayout(main_layout)
+        # Password field and checkbox
+        password_layout = QHBoxLayout()
+        password_layout.addWidget(self.password_entry)
+        password_layout.addWidget(self.show_password_checkbox)
 
-        # Fenster anzeigen
+        # Execute and Cancel buttons side by side
+        action_buttons_layout = QHBoxLayout()
+        action_buttons_layout.addWidget(self.execute_button)
+        action_buttons_layout.addWidget(self.cancel_button)
+
+        # Log area
+        bottom_layout = QVBoxLayout()
+        bottom_layout.addWidget(self.log_output)
+        bottom_layout.addWidget(self.toggle_log_button)
+
+        # Combine everything
+        main_layout.addLayout(file_buttons_layout) # File selection buttons in main layout
+        main_layout.addLayout(password_layout) # Password field and checkbox
+        main_layout.addLayout(action_buttons_layout) # Execute and Cancel
+        main_layout.addLayout(bottom_layout) # Log area
+
+        # Show window
+        self.center_window()
         self.window.show()
 
-        # Animation für Log-Ausgabe
-        self.animation = QPropertyAnimation(self.log_output, b"maximumHeight")
-        self.animation.setDuration(300)  # Animation dauert 300ms
+        # Hide log area initially
+        self.log_output.setMaximumHeight(0)
+        self.toggle_log_button.setChecked(False)
 
-    def create_drag_and_drop_button(self, is_left=True):
-        """Erstellt einen Drag-and-Drop-Bereich, der auf Klick öffnet, und zeigt den Dateipfad an."""
-        # Drag-and-Drop Bereich
-        drop_area = QWidget()
-        drop_area.setAcceptDrops(True)  # Aktiviert Drag-and-Drop für dieses Widget
+    def handle_dropped_file(self, file_type, file_path):
+        """Processes the dropped file based on its type."""
+        if file_type == "Host":
+            self.host_file = file_path
+            self.host_button.setText("Host File Selected ✔")
+            self.log_output.append(f"Host file selected: {file_path}")
+        elif file_type == "Guest":
+            self.guest_file = file_path
+            self.guest_button.setText("Guest File Selected ✔")
+            self.log_output.append(f"Guest file selected: {file_path}")
 
-        # Stylesheet für den Drag-and-Drop Bereich: Hintergrundfarbe und Hover-Effekt
-        drop_area.setStyleSheet("""
-            QWidget {
-                border: 1px dashed black;
-                border-radius: 10px;
-            }
-            QWidget:hover {
-                background-color: #808080;  /* Helleres Blau, wenn über dem Bereich */
-            }
-        """)
+        self.update_execute_button_state()
 
-        drop_area.setFixedSize(200, 100)  # Feste Größe für den Drag-and-Drop Bereich
+    def update_execute_button_state(self):
+        """Enables or disables the Execute button based on input fields."""
+        if self.host_file and self.guest_file and self.save_location and self.password_entry.text().strip():
+            self.execute_button.setEnabled(True)
+        else:
+            self.execute_button.setEnabled(False)
 
-        # Label für den Drag-and-Drop Bereich
-        drop_area_label = QLabel("Ziehen Sie eine Datei hierhin")
-        drop_area_label.setAlignment(Qt.AlignCenter)
+    def toggle_password(self):
+        """Shows or hides the password."""
+        if self.show_password_checkbox.isChecked():
+            self.password_entry.setEchoMode(QLineEdit.Normal)
+        else:
+            self.password_entry.setEchoMode(QLineEdit.Password)
 
-        # Layout für den Drop-Bereich mit dem Label hinzufügen
-        drop_area_layout = QVBoxLayout()
-        drop_area_layout.addWidget(drop_area_label)
-        drop_area.setLayout(drop_area_layout)
-
-        # Connect the drop area with the drag-and-drop events
-        drop_area.dragEnterEvent = lambda event: self.dragEnterEvent(event, is_left)
-        drop_area.dropEvent = lambda event: self.dropEvent(event, is_left)
-
-        # Hier klicken auf den Bereich öffnet den Dateidialog
-        drop_area.mousePressEvent = self.open_file_dialog_on_click
-
-        # Label für den Dateipfad (wird später aktualisiert)
-        file_path_label = QLabel("Kein Dateipfad ausgewählt")
-        file_path_label.setAlignment(Qt.AlignCenter)
-
-        return drop_area, file_path_label
-
-    def open_file_dialog_on_click(self, event):
-        """Öffnet den Dateidialog, wenn auf den Drag-and-Drop-Bereich geklickt wird."""
-        # Öffnet den Dateidialog und aktualisiert den Dateipfad
+    def open_file(self, file_type):
+        """Opens a file selector dialog."""
         file_dialog = QFileDialog(self.window)
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
-        file_dialog.setNameFilter("Alle Dateien (*.*)")
-        file_dialog.setViewMode(QFileDialog.List)
+        if file_dialog.exec():
+            selected_file = file_dialog.selectedFiles()[0]
+            self.handle_dropped_file(file_type, selected_file)
 
-        if file_dialog.exec_():
-            selected_files = file_dialog.selectedFiles()
-            if selected_files:
-                # Datei hinzugefügt, Pfad anzeigen
-                self.update_file_path(selected_files[0], is_left=True)
+    def save_file(self):
+        """Selects a save location."""
+        save_dialog = QFileDialog(self.window)
+        save_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        if save_dialog.exec():
+            save_path = save_dialog.selectedFiles()[0]
+            self.save_location = save_path
+            self.save_button.setText("Save Location Selected ✔")  # Add checkmark
+            self.log_output.append(f"Save location selected: {save_path}")
+            self.update_execute_button_state()
 
-    def dragEnterEvent(self, event, is_left=True):
-        """Ermöglicht das Akzeptieren von Drag-and-Drop-Events."""
-        if event.mimeData().hasUrls():
-            event.accept()
-        else:
-            event.ignore()
+    def on_execute_click(self):
+        """Executes the main logic."""
+        host = self.host_file
+        guest = self.guest_file
+        password = self.password_entry.text()
+        saveloc = self.save_location
+        
+        self.event_manager.trigger_event("process_data", {
+            "host": host,
+            "volume": guest,
+            "password": password,
+            "output": saveloc,
+        })
+        
+        self.log_output.append("Execution started...")
 
-    def dropEvent(self, event, is_left=True):
-        """Verarbeitet die Datei, die per Drag-and-Drop abgelegt wurde."""
-        urls = event.mimeData().urls()
-        if urls:
-            # Den Dateipfad extrahieren und weiterverarbeiten
-            file_path = urls[0].toLocalFile()
-            self.update_file_path(file_path, is_left)
-
-    def update_file_path(self, file_path, is_left):
-        """Aktualisiert das Label mit dem Dateipfad, abhängig vom Drop-Bereich."""
-        if is_left:
-            self.left_file_path_label.setText(f"Dateipfad: {file_path}")
-        else:
-            self.right_file_path_label.setText(f"Dateipfad: {file_path}")
+    def on_exit_click(self):
+        """Closes the program."""
+        reply = QMessageBox.question(self.window, "Exit", "Are you sure you want to exit?",
+                                     QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.app.quit()
 
     def toggle_log_window(self):
-        """Ein- oder Ausklappen des Log-Bereichs."""
+        """Expands or collapses the log area."""
+
         if self.toggle_log_button.isChecked():
-            self.toggle_log_button.setText("Log ausblenden")
+            self.toggle_log_button.setText("Hide Log")
             self.animation.setStartValue(self.log_output.maximumHeight())
-            self.animation.setEndValue(150)  # Höhe des ausgeklappten Log-Bereichs
+            self.animation.setEndValue(150)  # Height for visible log area
         else:
-            self.toggle_log_button.setText("Log anzeigen")
+            self.toggle_log_button.setText("Show Log")
             self.animation.setStartValue(self.log_output.maximumHeight())
-            self.animation.setEndValue(0)  # Einklappen des Log-Bereichs
+            self.animation.setEndValue(0)  # Collapse log area
         self.animation.start()
 
-    def run(self):
-        self.window.show()  # Hauptfenster anzeigen
-        self.app.exec()     # Event-Schleife starten
+
+    def center_window(self):
+        """Centers the window on the screen."""
+        screen_geometry = QApplication.primaryScreen().geometry()
+        window_geometry = self.window.frameGeometry()
+        center_point = screen_geometry.center()
+        window_geometry.moveCenter(center_point)
+        self.window.move(window_geometry.topLeft())
+
 
     def display_message(self, message, message_type):
+        """Displays a message in the log area of the GUI."""
         if message_type == "info":
-            QMessageBox.information(self.window, "Info", message)
+            self.log_output.append(f"[INFO] {message}")
+        elif message_type == "verbose":
+            self.log_output.append(f"[VERBOSE] {message}")
         elif message_type == "error":
-            QMessageBox.critical(self.window, "Fehler", message)
+            self.log_output.append(f"[ERROR] {message}")
+        elif message_type == "message":
+            self.log_output.append(f"{message}")
         else:
-            QMessageBox.warning(self.window, "Nachricht", message)
+            self.log_output.append(f"[UNKNOWN] {message}")
+        
+    def edit_config():
+        pass
 
-    def edit_config(self):
-        self.display_message("Config-Editor wird noch implementiert.", "info")
+
+    def run(self):
+        """Starts the GUI."""
+        self.app.exec()
