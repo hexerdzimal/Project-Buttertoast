@@ -62,6 +62,7 @@ class Cryptomat:
         Returns:
         str: The error message when the password was wrong.
 
+
         bytes: The re-encrypted TrueCrypt volume (binary data), which includes the manipulated salt.
         """
         # Extract the salt from the polyglot file
@@ -74,13 +75,11 @@ class Cryptomat:
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
         self.ui.display_message(f"TrueCrypt-Volume decrypted.", "verbose")
 
-
         # Check if the decryption was a success, meaning we got a TRUE
         # If it was not, the cryptomator returns a String with the error msg that the password was wrong or the TrueCrypt Volume is invalid
         if isinstance(decrypted_volume, str):
             # Return that string as the final result (error message)
             return "Wrong password provided or invalid TrueCrypt-Volume!"
-
 
         # Re-encrypt the volume using the salt from the polyglot host file
         self.ui.display_message(f"Re-encrypting the given TrueCrypt-Volume...", "verbose")
