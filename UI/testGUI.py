@@ -2,10 +2,8 @@ from UI.testMasterUI import BaseUI
 from PySide6.QtCore import QPropertyAnimation, Qt
 from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import (
-
     QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout,
     QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox
-
 )
 import sys
 
@@ -15,6 +13,7 @@ class FileButton(QPushButton):
         super().__init__(label, parent)
         self.setAcceptDrops(True)
         self.drop_handler = drop_handler  # Callback function to process the dropped file
+        self.setToolTip("You can drag and drop your files here or click to choose a file.")
 
     def dragEnterEvent(self, event):
         """Allow files to be dropped when dragged into the button."""
@@ -47,7 +46,6 @@ class GUI(BaseUI):
 
         # Create main window
         self.window = QMainWindow()
-
         self.window.setWindowTitle("Buttertoast")
         self.window.setGeometry(100, 100, 600, 600)
 
@@ -224,7 +222,6 @@ class GUI(BaseUI):
 
     def toggle_log_window(self):
         """Expands or collapses the log area."""
-
         if self.toggle_log_button.isChecked():
             self.toggle_log_button.setText("Hide Log")
             self.animation.setStartValue(self.log_output.maximumHeight())
@@ -235,7 +232,6 @@ class GUI(BaseUI):
             self.animation.setEndValue(0)  # Collapse log area
         self.animation.start()
 
-
     def center_window(self):
         """Centers the window on the screen."""
         screen_geometry = QApplication.primaryScreen().geometry()
@@ -244,15 +240,16 @@ class GUI(BaseUI):
         window_geometry.moveCenter(center_point)
         self.window.move(window_geometry.topLeft())
 
-
     def display_message(self, message, message_type):
-        """Displays a message in the log area of the GUI."""
+        """Displays a message in the log area of the GUI and optionally as a popup."""
         if message_type == "info":
             self.log_output.append(f"[INFO] {message}")
+            QMessageBox.information(self.window, "Information", message)
         elif message_type == "verbose":
             self.log_output.append(f"[VERBOSE] {message}")
         elif message_type == "error":
             self.log_output.append(f"[ERROR] {message}")
+            QMessageBox.critical(self.window, "Error", message)
         elif message_type == "message":
             self.log_output.append(f"{message}")
         else:
@@ -260,7 +257,6 @@ class GUI(BaseUI):
         
     def edit_config():
         pass
-
 
     def run(self):
         """Starts the GUI."""
