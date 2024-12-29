@@ -2,7 +2,7 @@ from Engine.plugin_Interface import plugin_Interface
 import struct
 import zlib
 
-class Png(plugin_Interface):
+class Filetype(plugin_Interface):
     """
     The `Png` class is a plugin for creating polyglot files by embedding a TrueCrypt volume into a PNG file.
 

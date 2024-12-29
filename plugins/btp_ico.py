@@ -1,7 +1,7 @@
 from Engine.plugin_Interface import plugin_Interface
 import struct
 
-class Ico(plugin_Interface):
+class Filetype(plugin_Interface):
     """
     The `Ico` class is a plugin for creating polyglot files by embedding a TrueCrypt volume into an ICO (icon) file.
 

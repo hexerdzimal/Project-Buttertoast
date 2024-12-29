@@ -1,7 +1,7 @@
 from Engine.plugin_Interface import plugin_Interface
 import struct
 
-class Zip(plugin_Interface):
+class Filetype(plugin_Interface):
     def run(self, truecrypt, zip_host):
         polyglot = bytearray(truecrypt) + bytearray(zip_host)
         polyglot = bytes(polyglot)

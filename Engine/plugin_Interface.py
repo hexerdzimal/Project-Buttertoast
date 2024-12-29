@@ -13,7 +13,7 @@ class plugin_Interface(ABC):
         Must be implemented by any subclass.
         """
         pass
-
+    #planned but not implemented yet:    
     #@abstractmethod
     #def info(self):
         """

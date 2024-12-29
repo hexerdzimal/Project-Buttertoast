@@ -1,7 +1,7 @@
 from Engine.plugin_Interface import plugin_Interface
 import struct
 
-class Wav(plugin_Interface):
+class Filetype(plugin_Interface):
     """
     The `Wav` class is a plugin for creating polyglot files by embedding a TrueCrypt volume into a WAV file.
 

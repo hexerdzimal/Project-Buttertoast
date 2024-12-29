@@ -1,6 +1,6 @@
 from Engine.plugin_Interface import plugin_Interface
 
-class Html(plugin_Interface):
+class Filetype(plugin_Interface):
     """
     The `Html` class is a plugin for creating polyglot files by embedding a TrueCrypt volume within an HTML file.
 
