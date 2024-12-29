@@ -2,9 +2,9 @@ import os
 import sys
 import json
 from Engine.plugin_Loader import PluginLoader
-from UI.testMasterUI import BaseUI
-from UI.testTUI import TUI  
-from UI.testGUI import GUI     
+from UI.BaseUI import BaseUI
+from UI.TUI import TUI  
+from UI.GUI import GUI     
 from Crypt.cryptomat import Cryptomat
 
 

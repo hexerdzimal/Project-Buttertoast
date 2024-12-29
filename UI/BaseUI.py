@@ -1,59 +1,41 @@
-from tkinter import filedialog
+from abc import ABC, abstractmethod
 
-class BaseUI:
-    def __init__(self):
-        self.controller = None  # Referenz auf die Engine
+class BaseUI(ABC):
+    """
+    Eine abstrakte Basis für alle UI-Klassen. Beide UI-Typen (GUI und TUI) werden von dieser Klasse erben.
+    """
 
-    def openFile(self, file_type):
-        return filedialog.askopenfilename(title=f"{file_type}-Datei auswählen")
-
-    def saveFile(self):
-        return filedialog.asksaveasfilename(title="Speicherort auswählen")
-
-    def enterPassword(self, password=None):
-        return password if password else "buttertoast"
-
-    def startProcessing(self, host, volume, password, output):
-        print(f"Host: {host}, Volume: {volume}, Passwort: {password}, Ausgabe: {output}")
-        return (volume, host, output, password)
-
-    def set_controller(self, controller):
+    def __init__(self, event_manager):
         """
-        Verknüpft die UI mit einem Controller (der Engine).
-        :param controller: Instanz der Engine
-        """
-        self.controller = controller
+        Initialisiert die UI und verbindet sie mit dem Event-Manager.
 
-    def show_result(self, result):
+        Args:
+            event_manager (EventManager): Der Event-Manager für die Kommunikation.
         """
-        Zeigt das Ergebnis der Verarbeitung an. 
-        Muss in abgeleiteten Klassen implementiert werden.
-        :param result: Ergebnisdaten
-        """
-        raise NotImplementedError("Die 'show_result' Methode muss in der abgeleiteten Klasse implementiert werden.")
+        self.event_manager = event_manager
 
-    def show_error(self, message):
-        """
-        Zeigt eine Fehlermeldung an. 
-        Muss in abgeleiteten Klassen implementiert werden.
-        :param message: Fehlermeldung
-        """
-        raise NotImplementedError("Die 'show_error' Methode muss in der abgeleiteten Klasse implementiert werden.")
-
+    @abstractmethod
     def run(self):
         """
-        Startet die UI. 
-        Muss in abgeleiteten Klassen implementiert werden.
+        Startet die UI-Schleife und wartet auf Benutzereingaben.
         """
-        raise NotImplementedError("Die 'run' Methode muss in der abgeleiteten Klasse implementiert werden.")
+        pass
 
-    def collect_user_input(self):
+    @abstractmethod
+    def display_message(self, message, message_type):
         """
-        Sammelt Benutzereingaben und übergibt sie an den Controller.
-        Muss in abgeleiteten Klassen implementiert werden.
+        Zeigt eine Nachricht basierend auf ihrem Typ an.
+        
+        Args:
+            message (str): Die anzuzeigende Nachricht.
+            message_type (str): Typ der Nachricht (z.B. "info", "verbose", "error").
         """
-        raise NotImplementedError("Die 'collect_user_input' Methode muss in der abgeleiteten Klasse implementiert werden.")
-    
-    def exit(self):
-        print("Beenden")
-        exit()
+        pass
+
+    @abstractmethod
+    def edit_config():
+        """
+        Menü zum Bearbeiten der Einstellungen in der Config
+
+        """
+
