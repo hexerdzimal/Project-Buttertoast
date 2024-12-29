@@ -46,6 +46,7 @@ class PluginLoader:
                 return file
         
         # Falls keine passende Datei gefunden wurde, gebe None zurück
+        self.ui.display_message(f"Could not find an extension for '{extension}'. Please check plugin folder.", "error")
         return None
 
     def get_plugin_name(self, extension):
@@ -87,6 +88,8 @@ class PluginLoader:
             self.ui.display_message(f"Trying to load the plugin for extension '{extension}'...", "verbose")
         
         plugin_name = self.get_plugin_name(extension)
+        if not plugin_name:
+            return
         
         if self.ui:
             self.ui.display_message(f"Found file extension: '{extension}', Plugin name: '{plugin_name}'", "verbose")
@@ -120,10 +123,10 @@ class PluginLoader:
 
         except (ModuleNotFoundError, AttributeError) as e:
             if self.ui:
-                self.ui.display_message(f"[ERROR] Error loading plugin '{plugin_name}': {e}", "error")
+                self.ui.display_message(f"Error loading plugin '{plugin_name}': {e}", "error")
         except Exception as e:
             if self.ui:
-                self.ui.display_message(f"[ERROR] Error executing the plugin: {e}", "error")
+                self.ui.display_message(f"Error executing the plugin: {e}", "error")
         finally:
             # Remove the plugin directory from sys.path after execution
             sys.path.pop(0)
@@ -140,7 +143,7 @@ class PluginLoader:
         
         if not os.path.exists(self.directory):
             if self.ui:
-                self.ui.display_message(f"[ERROR] Plugin directory '{self.directory}' not found.", "error")
+                self.ui.display_message(f"Plugin directory '{self.directory}' not found.", "error")
             return available_plugins
 
         if self.ui:
@@ -155,7 +158,7 @@ class PluginLoader:
                         self.ui.display_message(f"{plugin_name}", "info")
                 except Exception as e:
                     if self.ui:
-                        self.ui.display_message(f"[ERROR] Error loading plugin '{plugin_name}': {e}", "error")
+                        self.ui.display_message(f"Error loading plugin '{plugin_name}': {e}", "error")
         
         return available_plugins
 

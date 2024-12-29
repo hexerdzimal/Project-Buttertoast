@@ -104,6 +104,8 @@ class Engine:
             # Load and run the plugin, passing the extension
             plugin = PluginLoader(ui=self.ui)
             poly_bytecode = plugin.load_and_run_plugin(volume_bytecode, host_bytecode, extension)
+            if not poly_bytecode:
+                return
 
             # Perform encryption using Cryptomat
             cryptomat = Cryptomat(ui=self.ui)
