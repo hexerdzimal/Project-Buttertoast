@@ -2,10 +2,6 @@ import importlib
 import os
 import sys
 
-import importlib
-import os
-import sys
-
 class PluginLoader:
     """
     A class responsible for loading and running plugins based on file extensions.
