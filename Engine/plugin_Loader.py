@@ -21,17 +21,54 @@ class PluginLoader:
         self.directory = directory  # Directory where plugins are located
         self.ui = ui  # UI instance for displaying messages
 
-    def get_plugin_name(self, extension):
+    def find_file_with_partition(self, extension):
         """
-        Generates the plugin name based on the file extension.
+        Finds a file in the specified directory that starts with 'btp_' and ends with '.py'
+        and contains the given extension in its partitioned filename.
 
         Args:
-            extension (str): The file extension.
+            extension (str): The string to search for in the partitioned filename.
 
         Returns:
-            str: The plugin name, e.g., "btp_txt".
+            str: The filename of the matching file, or None if no match is found.
         """
-        return f"btp_{extension}"
+        # Liste für alle Dateien im Verzeichnis, die mit "btp_" beginnen und mit ".py" enden
+        files = [f for f in os.listdir(self.directory) if f.startswith('btp_') and f.endswith('.py')]
+        
+        # Durchsuche die gefundenen Dateien
+        for file in files:
+            # Zerlege den Dateinamen nach "_" und entferne ".py" am Ende
+            partitions = file[4:-3].split('_')  # "btp_" wird abgeschnitten und ".py" auch
+            
+            # Überprüfe, ob die Extension in einer der Partitionen vorhanden ist
+            if extension in partitions:
+                # Wenn die Extension gefunden wurde, gib den vollständigen Dateinamen zurück
+                return file
+        
+        # Falls keine passende Datei gefunden wurde, gebe None zurück
+        return None
+
+    def get_plugin_name(self, extension):
+        """
+        Generates the plugin name based on the file extension and searches for a plugin file 
+        containing the given extension in its partitioned filename.
+
+        Args:
+            extension (str): The file extension (e.g., 'txt', 'json').
+
+        Returns:
+            str: The plugin name if the file is found, or None if no matching file is found.
+        """
+        # Suche nach einer Datei, die die Extension in ihren Partitionen enthält
+        found_file = self.find_file_with_partition(extension)
+        
+        if found_file:
+            # Gib den gefundenen Dateinamen zurück, wenn eine Übereinstimmung gefunden wurde
+            filename = found_file[:-3]
+            return filename
+        else:
+            # Wenn keine Datei gefunden wurde, gib None zurück
+            return None
 
     def load_and_run_plugin(self, volume_byte, host_byte, extension):
         """
