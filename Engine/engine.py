@@ -1,10 +1,22 @@
 import os
+import sys
 import json
 from Engine.plugin_Loader import PluginLoader
 from UI.testMasterUI import BaseUI
 from UI.testTUI import TUI  
 from UI.testGUI import GUI     
 from Crypt.cryptomat import Cryptomat
+
+
+def restart_program():
+        """Startet das aktuelle Python-Programm neu."""
+        try:
+            print("Programm wird neu gestartet...")
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
+        except Exception as e:
+            print(f"Fehler beim Neustarten: {e}")
+            sys.exit(1)
    
 
 class Engine:
@@ -92,19 +104,22 @@ class Engine:
             extension = self.get_file_extension(host)
 
             # Load and run the plugin, passing the extension
-            plugin = plugin_loader = PluginLoader(ui=self.ui)
+            plugin =PluginLoader(ui=self.ui)
             poly_bytecode = plugin.load_and_run_plugin(volume_bytecode, host_bytecode, extension)
 
             # Perform encryption using Cryptomat
             cryptomat = Cryptomat(ui=self.ui)
             buttertoast = cryptomat.cryptomator(volume_bytecode, poly_bytecode, password)
 
+            if buttertoast is None:
+                return {"status": "Oops, something went wrong! Check log for more information"}
+
             # Save the result to a file
             _, file_extension = os.path.splitext(host)
             outputfile = output_filename + file_extension
             self.save_bytecode_to_file(buttertoast, outputfile)
 
-            return {"status": "File successfully created"}
+            return {"status": "File " + os.path.basename(outputfile) +" successfully created"}
 
         except Exception as e:
             # Display error message to UI
@@ -178,7 +193,7 @@ class Engine:
             with open(filename, 'wb') as file:
                 file.write(bytecode)
             # Display debug message to UI
-            self.ui.display_message(f"Bytecode successfully written to the file '{filename}'.", "info")
+            self.ui.display_message(f"Bytecode successfully written to the file '{filename}'.", "verbose")
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error saving bytecode to the file '{filename}': {e}", "error")
@@ -258,6 +273,7 @@ class Engine:
             # Output confirmation message
             new_value = "enabled" if self.config["gui"] else "disabled"
             self.ui.display_message(f"GUI has been {new_value}.", "info")
+            restart_program()
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error toggling the 'gui' value: {e}", "error")
@@ -277,6 +293,7 @@ class Engine:
             # Output confirmation message
             new_value = "enabled" if self.config["verbose"] else "disabled"
             self.ui.display_message(f"Verbose has been {new_value}.", "info")
+            restart_program()
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error toggling the 'verbose' value: {e}", "error")
@@ -289,6 +306,9 @@ class Engine:
         try:
             # Change language logic can be implemented here
             self.ui.display_message("Language has been changed.", "info")
+            restart_program()
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error toggling the 'language' value: {e}", "error")
+
+    

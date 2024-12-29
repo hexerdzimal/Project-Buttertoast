@@ -210,8 +210,6 @@ class GUI(BaseUI):
             "password": password,
             "output": saveloc,
         })
-        
-        self.log_output.append("Execution started...")
 
     def on_exit_click(self):
         """Closes the program."""

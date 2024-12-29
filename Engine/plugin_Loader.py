@@ -51,37 +51,37 @@ class PluginLoader:
             bytes: The processed bytecode after running the plugin.
         """
         if self.ui:
-            self.ui.display_message(f"Trying to load the plugin for extension '{extension}'...", "info")
+            self.ui.display_message(f"Trying to load the plugin for extension '{extension}'...", "verbose")
         
         plugin_name = self.get_plugin_name(extension)
         
         if self.ui:
-            self.ui.display_message(f"Found file extension: '{extension}', Plugin name: '{plugin_name}'", "info")
+            self.ui.display_message(f"Found file extension: '{extension}', Plugin name: '{plugin_name}'", "verbose")
 
         # Add the plugin directory to sys.path to locate the plugins
         sys.path.insert(0, self.directory)
 
         try:
             if self.ui:
-                self.ui.display_message(f"Attempting to import plugin '{plugin_name}' and load the class...", "info")
+                self.ui.display_message(f"Attempting to import plugin '{plugin_name}' and load the class...", "verbose")
             
             # Try importing the plugin module
             plugin_module = importlib.import_module(plugin_name)
-            class_name = extension.capitalize()  # Capitalize the class name based on convention
+            class_name = 'Filetype'
             plugin_class = getattr(plugin_module, class_name)
 
             # Create an instance of the plugin class and run the 'run' method
             if self.ui:
-                self.ui.display_message(f"Creating an instance of '{plugin_class.__name__}'...", "info")
+                self.ui.display_message(f"Creating an instance of '{plugin_class.__name__}'...", "verbose")
             
             plugin_instance = plugin_class()
             if self.ui:
-                self.ui.display_message(f"Running the 'run' method of '{plugin_class.__name__}'...", "info")
+                self.ui.display_message(f"Running the 'run' method of '{plugin_class.__name__}'...", "verbose")
             
             poly_byte = plugin_instance.run(volume_byte, host_byte)  # Pass 'host' and 'volume' as bytecode data
 
             if self.ui:
-                self.ui.display_message(f"'{plugin_class.__name__}' executed successfully.", "info")
+                self.ui.display_message(f"'{plugin_class.__name__}' executed successfully.", "verbose")
             
             return poly_byte
 

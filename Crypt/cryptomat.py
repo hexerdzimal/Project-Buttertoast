@@ -73,6 +73,10 @@ class Cryptomat:
         # Decrypt the TrueCrypt volume
         self.ui.display_message(f"Decrypting the given TrueCrypt-Volume...", "verbose")
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
+        if decrypted_volume is None:  # Abbruch bei fehlgeschlagener Entschlüsselung
+            self.ui.display_message(f"Decryption failed. Wrong password or invalid volume.", "info")
+            return None
+
         self.ui.display_message(f"TrueCrypt-Volume decrypted.", "verbose")
 
         # Check if the decryption was a success, meaning we got a TRUE
@@ -183,8 +187,8 @@ class Cryptomat:
         if decrypted_data[:4] != b"TRUE":
             print("Error: Magic number 'TRUE' not found. Decryption failed.")
 
-            # Return an error string directly here
-            return "Wrong password provided or invalid TrueCrypt-Volume."
+            # Return an None Type
+            return None
 
         # Return the decrypted data, including the salt
         return salt + decrypted_data

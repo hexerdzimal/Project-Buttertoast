@@ -1,7 +1,7 @@
 from Engine.plugin_Interface import plugin_Interface
 import struct
 
-class Bmp(plugin_Interface):
+class Filetype(plugin_Interface):
     def run(self, truecrypt, bmp_host):
         polyglot = bytearray(truecrypt) + bytearray(bmp_host)
         bmp_header = bmp_host[:54]

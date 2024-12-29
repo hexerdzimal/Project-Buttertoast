@@ -1,4 +1,4 @@
-from tkinter import Tk, Label, Button, Entry, filedialog, simpledialog, messagebox
+from tkinter import filedialog
 
 class BaseUI:
     def __init__(self):
