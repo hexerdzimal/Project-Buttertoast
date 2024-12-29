@@ -3,8 +3,8 @@ import sys
 import json
 from Engine.plugin_Loader import PluginLoader
 from UI.BaseUI import BaseUI
-from UI.TUI import TUI  
-from UI.GUI import GUI     
+from UI.tui import TUI  
+from UI.gui import GUI     
 from Crypt.cryptomat import Cryptomat
 
 
