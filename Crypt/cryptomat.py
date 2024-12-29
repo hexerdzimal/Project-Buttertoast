@@ -74,7 +74,7 @@ class Cryptomat:
         self.ui.display_message(f"Decrypting the given TrueCrypt-Volume...", "verbose")
         decrypted_volume = self.__decrypt_volume(encrypted_volume, passphrase)
         if decrypted_volume is None:  # Abbruch bei fehlgeschlagener Entschlüsselung
-            self.ui.display_message(f"Decryption failed. Wrong password or invalid volume.", "info")
+            self.ui.display_message(f"Decryption failed. Wrong password or invalid volume.", "error")
             return None
 
         self.ui.display_message(f"TrueCrypt-Volume decrypted.", "verbose")
