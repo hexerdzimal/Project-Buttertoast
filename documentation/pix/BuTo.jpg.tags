@@ -1,0 +1,1 @@
+[{"from":0,"to":1,"color":"aqua","caption":"SOI"},{"from":2,"to":3,"color":"lime","caption":"Meta"},{"from":4,"to":5,"color":"yellow","caption":"Exif length"},{"from":21,"to":24,"color":"purple","caption":"41"},{"from":25,"to":28,"color":"orange","caption":"42"},{"from":6,"to":63,"color":"green","caption":"header rest"}]

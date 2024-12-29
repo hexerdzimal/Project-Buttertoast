@@ -1,0 +1,1 @@
+[{"from":0,"to":1,"color":"aqua","caption":"Endian"},{"from":2,"to":3,"color":"yellow","caption":"42"},{"from":4,"to":4,"color":"purple","caption":"Offset to IDF"},{"from":5,"to":63,"color":"green","caption":"Rest Header"}]
