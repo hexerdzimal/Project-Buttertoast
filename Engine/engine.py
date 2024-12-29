@@ -112,9 +112,10 @@ class Engine:
             if buttertoast is None:
                 return
 
-            # Save the result to a file
-            _, file_extension = os.path.splitext(host)
-            outputfile = output + file_extension
+            # Save the result to a file, cut old fileextension if neccessary
+            if '.' in output and os.path.splitext(output)[1]:  
+                output = os.path.splitext(output)[0]
+            outputfile = output + '.' + extension
             self.save_bytecode_to_file(buttertoast, outputfile)
 
             # Display success message
