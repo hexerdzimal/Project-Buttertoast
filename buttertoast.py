@@ -25,6 +25,7 @@ def load_config(config_file='config.json'):
     default_config = {
         "gui": True,
         "verbose": False,
+        "check": False,
         "language": "en"
     }
 

@@ -1,4 +1,5 @@
 {
     "gui": true,
-    "verbose": false
+    "verbose": false,
+    "check": false
 }

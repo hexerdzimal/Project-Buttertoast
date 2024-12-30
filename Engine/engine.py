@@ -122,8 +122,14 @@ class Engine:
             self.save_bytecode_to_file(buttertoast, outputfile)
 
             # Display success message
-            self.ui.display_message(f"File {os.path.basename(outputfile)} successfully created", "info")
+            check = self.config.get("check", False)
+            if not check:
+
+                self.ui.display_message(f"File {os.path.basename(outputfile)} successfully created", "info")
+                return
+
             run_tchuntng(outputfile, self.ui)
+            return
 
         except Exception as e:
             # Display error message to UI
