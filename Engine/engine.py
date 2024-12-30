@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from Utilities.try_tchuntng import run_tchuntng
 from Engine.plugin_Loader import PluginLoader
 from UI.BaseUI import BaseUI
 from UI.tui import TUI  
@@ -122,6 +123,7 @@ class Engine:
 
             # Display success message
             self.ui.display_message(f"File {os.path.basename(outputfile)} successfully created", "info")
+            run_tchuntng(outputfile, self.ui)
 
         except Exception as e:
             # Display error message to UI
