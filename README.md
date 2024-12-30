@@ -1,13 +1,13 @@
 
 # Project-Buttertoast
 
-**Project-Buttertoast** is an innovative application designed to hide TrueCrypt containers inside various file formats. Using a unique polyglot technique, it embeds the container in such a way that it remains both encrypted and functional as a TrueCrypt volume, while also appearing to be a different file type, such as a WAV file or PNG image. This method has successfully bypassed detection tools like `tchunt` and other common verification methods.
+**Buttertoast** is an innovative application designed to hide TrueCrypt containers inside various file formats. Using a unique polyglot technique, it embeds the container in such a way that it remains both encrypted and functional as a TrueCrypt volume, while also appearing to be a different file type, such as a WAV file or PNG image. This method has successfully bypassed detection tools like `tchunt` and other common verification methods.
 
-With a user-friendly interface and support for a variety of file formats, **Project-Buttertoast** offers a flexible and secure way to store sensitive data invisibly. It also supports plugin extensibility, so anyone with basic Python knowledge can add support for new file formats.
+With a user-friendly interface and support for a variety of file formats, **Buttertoast** offers a flexible and secure way to store sensitive data invisibly. It also supports plugin extensibility, so anyone with basic Python knowledge can add support for new file formats.
 
 ## Features
 
-- **TrueCrypt Container Hiding**: Seamlessly embed TrueCrypt containers inside various file formats (e.g., WAV, PNG, ICO, SVG, HTML, TIFF).
+- **TrueCrypt Container Hiding**: Seamlessly embed TrueCrypt containers inside various file formats (e.g., WAV, PNG, ICO, SVG, BMP).
 - **Polyglot Technology**: The TrueCrypt container is hidden within the file without disrupting its functionality, making it appear as a normal file type (like a WAV or PNG) while still being usable as a TrueCrypt volume.
 - **Multiple File Formats Supported**: Includes built-in plugins for several file types such as ICO, SVG, WAV, TIFF, PNG, HTML, and more.
 - **User Interface**: Both a graphical user interface (GUI) and a terminal user interface (TUI) are available.
@@ -43,15 +43,13 @@ To start the application, run the following command:
 
 ### Hiding a TrueCrypt Container
 
-1. **Select the File**: Choose the file in which you want to hide the TrueCrypt container (e.g., a WAV or PNG file).
-2. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified.
-3. **Start the Process**: Click "Start" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. 
+1. **Select the Host**: Choose the file in which you want to hide the TrueCrypt container (e.g., a WAV or PNG file).
+2. **Select the TrueCrypt Volume**:
+3. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified.
+4. **Start the Process**: Click "Execute" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. The file can also be mounted in TrueCrypt. 
 
 **Note**: No data is stored, corrupted, or shared. The password is only used to modify the container header and is not saved.
 
-### Retrieving a Hidden Container
-
-Currently, the function to retrieve hidden containers is not implemented. This feature will be added in future releases.
 
 ### Plugin System
 
@@ -109,7 +107,7 @@ urllib3==2.2.3
 
 ## Limitations
 
-- **File Formats**: TrueCrypt volumes can only be hidden in file formats for which a functioning plugin exists. Please refer to the plugin folder or check the available file types listed in the program itself.
+- **File Formats**: TrueCrypt volumes can only be hidden in file formats for which a functioning plugin exists. Please check the available file types listed in the program itself or refer to the "plugins" folder.
 - **Container Size**: Containers can be any size, but "unusually large files" (relative to their file type) may raise suspicion. For example, HTML files are typically much smaller than WAV files, so large HTML files will stand out more than large WAV files.
 - **Plugin Creation**: While the plugin system is designed to be easily extensible, creating plugins requires basic Python knowledge and a deeper understanding of bytecode manipulation and how to hide data within files.
 - **True Crypt Encryption Mode**: For now only supports AES encrypted files (SHA-512)
