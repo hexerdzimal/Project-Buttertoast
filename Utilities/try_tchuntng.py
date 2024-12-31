@@ -31,6 +31,9 @@ def run_tchuntng(file_path, ui):
     try:
         # Execute 'tchuntng' with the file path
         result = subprocess.run(["tchuntng", file_path], check=False)
+
+        # Write to log
+        ui.display_message(f"'tchuntng' was executed. Exit code: {result.returncode}", "verbose")
         
         # Display the exit code and corresponding message
         if result.returncode == 0:
@@ -38,14 +41,14 @@ def run_tchuntng(file_path, ui):
         elif result.returncode == 1:
             ui.display_message("A generic error occurred while running 'tchuntng'.", "error")
         elif result.returncode == 2:
-            ui.display_message("File successfully generated. 'tchuntng recognizes file as not encrypted!'", "info")
+            ui.display_message(f"File successfully generated.
+                               'tchuntng' recognizes file as 'not encrypted!'", "info")
         elif result.returncode == 3:
             ui.display_message("The operation was interrupted by a signal.", "error")
         else:
             ui.display_message(f"Unexpected exit code: {result.returncode}", "error")
 
-        # Log the execution result
-        ui.display_message(f"'tchuntng' was executed. Exit code: {result.returncode}", "info")
+ 
         return result.returncode
     except Exception as e:
         print(f"Error while executing 'tchuntng': {e}")
