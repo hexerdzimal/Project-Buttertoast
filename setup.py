@@ -77,7 +77,7 @@ setup(
 
     # classifiers 
     classifiers=[
-        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.13",
         "License :: OSI Approved :: GNU V. 3 License", 
         "Operating System :: OS Independent",
         "Topic :: Security",
