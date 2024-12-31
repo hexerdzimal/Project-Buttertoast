@@ -44,7 +44,7 @@ To start the application, run the following command:
 ### Hiding a TrueCrypt Container
 
 1. **Select the Host**: Choose the file in which you want to hide the TrueCrypt container (e.g., a WAV or PNG file).
-2. **Select the TrueCrypt Volume**:
+2. **Select the TrueCrypt Volume**: Choose the TrueCrypt Volume, that you want to hide
 3. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified.
 4. **Start the Process**: Click "Execute" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. The file can also be mounted in TrueCrypt. 
 
