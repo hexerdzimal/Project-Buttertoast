@@ -19,15 +19,11 @@
 from setuptools import setup, find_packages
 
 
-def load_requirements(filename="requirements.txt"):
-    with open(filename, "r") as file:
-        return [line.strip() for line in file if line.strip() and not line.startswith("#")]
-
 
 setup(
     # Basic information
     name="Buttertoast",  # toolname
-    version="0.8.0",       # Version, using SemVer 
+    version="0.9.0",       # Version, using SemVer 
     author="Matthias Ferstl, Fabian Kozlowski Stefan Leippe, Malte Muthesius", 
     author_email="mail@matthias-ferstl.de",  # E-Mail-Adress
     description="A tool to hide TrueCrypt container in polyglot-files",  # shortdescription
@@ -39,7 +35,36 @@ setup(
 
     packages=find_packages(),  # look for packege data
     include_package_data=True,  # also incule package data
-    install_requires=load_requirements(),  # fependencies from requirements.txt
+    install_requires = [
+        "altgraph==0.17.4",
+        "certifi==2024.8.30",
+        "cffi==1.17.1",
+        "charset-normalizer==3.4.0",
+        "click==8.1.7",
+        "colorama==0.4.6",
+        "cryptography==43.0.3",
+        "fpdf==1.7.2",
+        "idna==3.10",
+        "iniconfig==2.0.0",
+        "Jinja2==3.1.4",
+        "MarkupSafe==3.0.2",
+        "packaging==24.2",
+        "pefile==2023.2.7",
+        "pillow==11.0.0",
+        "pluggy==1.5.0",
+        "pycparser==2.22",
+        "pyinstaller==6.11.1",
+        "pyinstaller-hooks-contrib==2024.10",
+        "PySide6==6.8.0.2",
+        "PySide6_Addons==6.8.0.2",
+        "PySide6_Essentials==6.8.0.2",
+        "pytest==8.3.4",
+        "pywin32-ctypes==0.2.3",
+        "requests==2.32.3",
+        "setuptools==75.6.0",
+        "shiboken6==6.8.0.2",
+        "urllib3==2.2.3"
+    ],
     python_requires=">=3.11",  # minimum Python version
 
 
