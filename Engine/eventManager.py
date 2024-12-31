@@ -19,17 +19,17 @@
 class EventManager:
     def __init__(self):
         """
-        Initialisiert den Event-Manager mit einer leeren Liste von Event-Handlern.
+        Initializes the event manager with an empty list of event handlers.
         """
-        self.events = {}  # Dictionary für Event-Handler
+        self.events = {}  # Dictionary for event handlers
 
     def register_event(self, event_name, handler):
         """
-        Registriert einen Handler für ein bestimmtes Event.
+        Registers a handler for a specific event.
 
         Args:
-            event_name (str): Name des Events.
-            handler (callable): Funktion oder Methode, die aufgerufen wird, wenn das Event ausgelöst wird.
+            event_name (str): Name of the event.
+            handler (callable): Function or method to be called when the event is triggered.
         """
         if event_name not in self.events:
             self.events[event_name] = []
@@ -37,14 +37,17 @@ class EventManager:
 
     def trigger_event(self, event_name, data=None):
         """
-        Löst ein Event aus und ruft alle registrierten Handler auf.
+        Triggers an event and calls all registered handlers.
 
         Args:
-            event_name (str): Name des Events.
-            data (optional): Daten, die an die Handler übergeben werden.
+            event_name (str): Name of the event.
+            data (optional): Data to be passed to the handlers.
         """
         if event_name in self.events:
             for handler in self.events[event_name]:
                 handler(data)
         else:
-            print(f"[WARNUNG] Kein Handler für Event '{event_name}' registriert.")
+            print(f"[WARNING] No handler registered for event '{event_name}'.")
+
+
+

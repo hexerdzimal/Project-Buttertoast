@@ -59,8 +59,7 @@ def run_tchuntng(file_path, ui):
         elif result.returncode == 1:
             ui.display_message("A generic error occurred while running 'tchuntng'.", "error")
         elif result.returncode == 2:
-            ui.display_message(f"File successfully generated.
-                               'tchuntng' recognizes file as 'not encrypted!'", "info")
+            ui.display_message(f"File successfully generated./n'tchuntng' recognizes file as 'not encrypted!'", "info")
         elif result.returncode == 3:
             ui.display_message("The operation was interrupted by a signal.", "error")
         else:

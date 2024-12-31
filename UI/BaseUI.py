@@ -20,40 +20,40 @@ from abc import ABC, abstractmethod
 
 class BaseUI(ABC):
     """
-    Eine abstrakte Basis für alle UI-Klassen. Beide UI-Typen (GUI und TUI) werden von dieser Klasse erben.
+    An abstract base class for all UI classes. Both UI types (GUI and TUI) will inherit from this class.
     """
 
-    def __init__(self, event_manager):
+    def __init__(self, engine, event_manager):
         """
-        Initialisiert die UI und verbindet sie mit dem Event-Manager.
+        Initializes the UI and connects it to the event manager.
 
         Args:
-            event_manager (EventManager): Der Event-Manager für die Kommunikation.
+            event_manager (EventManager): The event manager for communication.
         """
         self.event_manager = event_manager
+        self.engine = engine
 
     @abstractmethod
-    def run(self):
+    def run(self, engine):
         """
-        Startet die UI-Schleife und wartet auf Benutzereingaben.
+        Starts the UI loop and waits for user input.
         """
         pass
 
     @abstractmethod
     def display_message(self, message, message_type):
         """
-        Zeigt eine Nachricht basierend auf ihrem Typ an.
+        Displays a message based on its type.
         
         Args:
-            message (str): Die anzuzeigende Nachricht.
-            message_type (str): Typ der Nachricht (z.B. "info", "verbose", "error").
+            message (str): The message to be displayed.
+            message_type (str): The type of the message (e.g., "info", "verbose", "error").
         """
         pass
 
     @abstractmethod
-    def edit_config():
+    def edit_config(self):
         """
-        Menü zum Bearbeiten der Einstellungen in der Config
-
+        Menu for editing settings in the configuration.
         """
-
+        pass

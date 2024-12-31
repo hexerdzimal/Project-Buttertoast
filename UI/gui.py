@@ -49,8 +49,8 @@ class FileButton(QPushButton):
                 self.drop_handler(file_path)
 
 class GUI(BaseUI):
-    def __init__(self, event_manager):
-        super().__init__(event_manager)
+    def __init__(self, engine, event_manager):
+        super().__init__(engine, event_manager)
 
         # Attributes for files and save locations
         self.host_file = None

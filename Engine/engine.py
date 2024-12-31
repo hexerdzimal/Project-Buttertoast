@@ -19,7 +19,7 @@
 import os
 import sys
 import json
-from Utilities.try_tchuntng import run_tchuntng
+from Utilities.try_tchuntng import run_tchuntng, check_tchuntng
 from Engine.plugin_Loader import PluginLoader
 from UI.BaseUI import BaseUI
 from UI.tui import TUI  
@@ -28,13 +28,13 @@ from Crypt.cryptomat import Cryptomat
 
 
 def restart_program():
-        """Startet das aktuelle Python-Programm neu."""
+        """Restarts buttertoast"""
         try:
-            print("Programm wird neu gestartet...")
+            print("Restarting Buttertoast")
             python = sys.executable
             os.execl(python, python, *sys.argv)
         except Exception as e:
-            print(f"Fehler beim Neustarten: {e}")
+            print(f"Error restarting buttertoast: {e}")
             sys.exit(1)
    
 
@@ -50,7 +50,7 @@ class Engine:
         self.event_manager.register_event("list_data", self.on_list_data)
         self.event_manager.register_event("change_ui", self.on_change_ui)
         self.event_manager.register_event("change_verbose", self.on_change_verbose)
-        self.event_manager.register_event("change_language", self.on_change_language)
+        self.event_manager.register_event("change_check", self.on_change_check)
 
     def load_config(self):
         """
@@ -89,9 +89,9 @@ class Engine:
         """
         use_gui = self.config.get("gui", False)
         if use_gui:
-            self.ui = GUI(self.event_manager)  
+            self.ui = GUI(self, self.event_manager)  
         else:
-            self.ui = TUI(self.event_manager)  
+            self.ui = TUI(self, self.event_manager)  
 
     def start_ui(self):
         """
@@ -285,22 +285,35 @@ class Engine:
             # Output confirmation message
             new_value = "enabled" if self.config["verbose"] else "disabled"
             self.ui.display_message(f"Verbose has been {new_value}.", "info")
-            restart_program()
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error toggling the 'verbose' value: {e}", "error")
 
-    def on_change_language(self, _):
+    def on_change_check(self, _):
         """
-        Event handler for the 'change_language' event.
-        Sets the value of the 'language' parameter in the config.json.
+        Event handler for the 'change_check' event.
+        Toggles the value of the 'check' parameter in the config.json, but only
+        if 'tchuntng' is available in the PATH.
         """
         try:
-            # Change language logic can be implemented here
-            self.ui.display_message("Language has been changed.", "info")
-            restart_program()
+            # Check if tchuntng is available
+            if not check_tchuntng():
+                self.ui.display_message(f"'tchuntng' is not available in the PATH or is not executable.", "error")
+                return
+
+            # Toggle 'check' value
+            self.config["check"] = not self.config.get("check", False)
+
+            # save config
+            self.save_config()
+
+           # Output confirmation message
+            new_value = "enabled" if self.config["check"] else "disabled"
+            self.ui.display_message(f"Checking of generated polyglot has been {new_value}.", "info")
+
         except Exception as e:
-            # Display error message to UI
-            self.ui.display_message(f"Error toggling the 'language' value: {e}", "error")
+            # Fehlermeldung ausgeben
+            self.ui.display_message(f"Error toggling the 'check' value: {e}", "error")
+
 
     
