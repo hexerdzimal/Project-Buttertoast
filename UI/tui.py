@@ -1,16 +1,33 @@
+# Buttertoast Copyright (C) 2024 Matthias Ferstl, Fabian Kozlowski, Stefan Leippe, Malte Muthesius
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# For more information, contact: mail@matthias-ferstl.de
+
 from UI.BaseUI import BaseUI
 
 from UI.BaseUI import BaseUI
 
 class TUI(BaseUI):
-    def __init__(self, event_manager):
+    def __init__(self, engine, event_manager):
         """
         Initialize the TUI (Text User Interface) with an event manager.
         
         Args:
             event_manager: The event manager responsible for triggering events in the application.
         """
-        super().__init__(event_manager)
+        super().__init__(engine, event_manager)
 
     def display_title(self):
         """
@@ -19,7 +36,7 @@ class TUI(BaseUI):
         """
         print(r"""
             +===================================================================================================+
-            |                                                                         Version: 0.7 (warm) 2024  |
+            |                                                                                                   |
             |   ██████╗ ██╗   ██╗████████╗████████╗███████╗██████╗ ████████╗ ██████╗  █████╗ ███████╗████████╗  |
             |   ██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝  |
             |   ██████╔╝██║   ██║   ██║      ██║   █████╗  ██████╔╝   ██║   ██║   ██║███████║███████╗   ██║     |
@@ -28,7 +45,11 @@ class TUI(BaseUI):
             |   ╚═════╝  ╚═════╝    ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝     |
             |                                   The melting pot for polyglot.                                   |
             +===================================================================================================+
-                                            by Fabian Kozlowski, Stefan Leippe, Malte Muthesius, Matthias Ferstl
+            Copyright (C) 2024 Matthias Ferstl, Fabian Kozlowski, Stefan Leippe, Malte Muthesius
+            This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
+            This program comes with ABSOLUTELY NO WARRANTY; 
+            This is free software, and you are welcome to redistribute it under certain conditions;
+            For more information, contact: mail@matthias-ferstl.de
                 """)
 
     def run(self):
@@ -119,69 +140,94 @@ class TUI(BaseUI):
         """
         Allows the user to modify settings in the config file (config.json).
         Provides options to change the user interface, toggle verbose mode, and configure language settings.
+        Displays the current status of each setting.
         """
-        print("\n")
-        print("Settings")
-        print("------------------------------------------")
-        print("1: Change User Interface")
-        print("2: Toggle verbose mode")
-        print("3: Language settings")
-        print("4: Return to Main Menu")
-        print("\n")
+        while True:
+            # Load current configuration using the get_config method
+            config = self.engine.load_config()  # Here, we call get_config to retrieve the configuration
 
-        choice = input("Please choose an option: ").strip()
+            # Determine the status of the configurations
+            gui_status = "[active]" if config.get("gui", False) else "[inactive]"
+            verbose_status = "[active]" if config.get("verbose", False) else "[inactive]"
+            check_status = "[active]" if config.get("check", False) else "[inactive]"
 
-        if choice == "1":
-            # Trigger the event to change the user interface
-            self.event_manager.trigger_event("change_ui", None)
-        elif choice == "2":
-            # Trigger the event to toggle verbose mode
-            self.event_manager.trigger_event("change_verbose", None)
-        elif choice == "3":
-            # Language settings are not implemented yet
-            print("Language settings are not implemented.")
-        elif choice == "4":
-            return  # Return to the main menu without reprinting the title
-        else:
-            print("Invalid selection. Please try again.")
+            print("\n")
+            print("Settings")
+            print("-" * 50)
 
-    def trigger_change_language(self):
-        """
-        Triggers the 'change_language' event to update language settings.
-        """
-        print("\n--- Listing data ---")
-        self.event_manager.trigger_event("change_language", None)
+            # Formatted output of options with status side by side
+            print(f"{'Option':<40} {'Status'}")
+            print("-" * 50)
+            
+            print(f"{'1: Toggle Graphical User Interface':<40} {gui_status}")
+            print(f"{'2: Toggle verbose mode':<40} {verbose_status}")
+            print(f"{'3: Toggle auto-tchunt-check':<40} {check_status}")
+            print()
+            print(f"'4: Return to Main Menu'")
+            
+            print("\n")
 
-    def trigger_change_ui(self):
-        """
-        Triggers the 'change_ui' event to update the user interface settings.
-        """
-        print("\n--- Listing data ---")
-        self.event_manager.trigger_event("change_ui", None)
+            choice = input("Please choose an option: ").strip()
 
-    def trigger_change_verbose(self):
-        """
-        Triggers the 'change_verbose' event to toggle verbose mode settings.
-        """
-        print("\n--- Listing data ---")
-        self.event_manager.trigger_event("change_verbose", None)
+            if choice == "1":
+            # Confirm change and restart
+                print("\033[38;5;214m\nChanging the user interface will restart the program immediately.\033[0m")
+                confirm = input("Do you want to continue? (y/n): ").strip().lower()
+
+                if confirm == "y":
+                    # Trigger the event to change the user interface
+                    self.event_manager.trigger_event("change_ui", None)
+                    print("The program will now restart...")
+                    return
+                else:
+                    print("UI change canceled. Returning to the settings menu...\n")
+                    continue 
+            elif choice == "2":
+                # Trigger the event to toggle verbose mode
+                self.event_manager.trigger_event("change_verbose", None)
+            elif choice == "3":
+                # Trigger event to change auto-check
+                self.event_manager.trigger_event("change_check", None)
+            elif choice == "4":
+                return  # Return to the main menu without reprinting the title
+            else:
+                print("Invalid selection. Please try again.")
+
+            # Reload the configuration display after each change
+            print("\nConfiguration updated. Returning to settings menu...\n")
 
     def trigger_list_data(self):
         """
         Triggers the 'list_data' event to list available data.
         """
-        print("\n")
-        print("--- Listing data ---")
         self.event_manager.trigger_event("list_data", None)
 
     def display_message(self, message, message_type):
+        config = self.engine.load_config()
+        verbose = config.get("verbose", False)
+
+        # ANSI color codes
+        colors = {
+            "info": "\033[34m",  # Blue
+            "verbose": "\033[32m",  # Green
+            "error": "\033[31m",  # Red
+            "message": "\033[37m",  # White
+            "reset": "\033[0m",  # Reset to default
+            "unknown": "\033[35m",  # Purple for unknown message types
+        }
+
+        # Choose the color based on the message type
+        color = colors.get(message_type, colors["unknown"])
+
         if message_type == "info":
-            print(f"[INFO] {message}")
+            print(f"{color}[INFO] {message}{colors['reset']}")
         elif message_type == "verbose":
-            print(f"[VERBOSE] {message}")
+            if verbose:
+                print(f"{color}[VERBOSE] {message}{colors['reset']}")
         elif message_type == "error":
-            print(f"[ERROR] {message}")
+            print(f"{color}[ERROR] {message}{colors['reset']}")
         elif message_type == "message":
-            print(f"{message}")
+            print(f"{color}{message}{colors['reset']}")
         else:
-            print(f"[UNKNOWN] {message}")
+            print(f"{color}[UNKNOWN] {message}{colors['reset']}")
+

@@ -1,3 +1,21 @@
+# Buttertoast Copyright (C) 2024 Matthias Ferstl, Fabian Kozlowski, Stefan Leippe, Malte Muthesius
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# For more information, contact: mail@matthias-ferstl.de
+
+
 from UI.BaseUI import BaseUI
 from PySide6.QtCore import QPropertyAnimation, Qt
 from PySide6.QtGui import QPixmap, QIcon
@@ -31,8 +49,8 @@ class FileButton(QPushButton):
                 self.drop_handler(file_path)
 
 class GUI(BaseUI):
-    def __init__(self, event_manager):
-        super().__init__(event_manager)
+    def __init__(self, engine, event_manager):
+        super().__init__(engine, event_manager)
 
         # Attributes for files and save locations
         self.host_file = None
