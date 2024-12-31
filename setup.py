@@ -29,7 +29,7 @@ setup(
     name="Buttertoast",  # toolname
     version="0.8.0",       # Version, using SemVer 
     author="Matthias Ferstl, Fabian Kozlowski Stefan Leippe, Malte Muthesius", 
-    author_email="mail@matthais-ferstl.de",  # E-Mail-Adress
+    author_email="mail@matthias-ferstl.de",  # E-Mail-Adress
     description="A tool to hide TrueCrypt container in polyglot-files",  # shortdescription
     long_description=open("README.md").read(),  # long description, opens README-File
     long_description_content_type="text/markdown",  # readme Content type
@@ -40,7 +40,7 @@ setup(
     packages=find_packages(),  # look for packege data
     include_package_data=True,  # also incule package data
     install_requires=load_requirements(),  # fependencies from requirements.txt
-    python_requires=">=3.13",  # Python version
+    python_requires=">=3.11",  # minimum Python version
 
 
     # entrypoint
@@ -52,9 +52,12 @@ setup(
 
     # classifiers 
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: GNU V. 3 License", 
         "Operating System :: OS Independent",
+        "Topic :: Security",
+        "Topic :: Utilities",
+        "Development Status :: 4 - Beta"
     ],
 
     # metadata
@@ -62,5 +65,6 @@ setup(
     project_urls={  # additional info
         "Bug Tracker": "https://github.com/hexerdzimal/Project-Buttertoast/issues",
         "Source Code": "https://github.com/hexerdzimal/Project-Buttertoast",
+        "License": "https://www.gnu.org/licenses/gpl-3.0.html"
     },
 )
