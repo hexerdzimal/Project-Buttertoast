@@ -36,7 +36,10 @@ setup(
     # Packages and requirements
 
     packages=find_packages(),  # look for packege data
-    include_package_data=True,  # also incule package data
+    include_package_data=True, # also incule package data
+      package_data={
+        "": ["buttertoast/doc/*"],
+    },  
     install_requires = [
         "backports.tarfile==1.2.0",
         "cryptography==43.0.3",
