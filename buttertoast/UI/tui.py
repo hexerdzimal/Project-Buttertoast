@@ -15,9 +15,10 @@
 #
 # For more information, contact: mail@matthias-ferstl.de
 
-from UI.BaseUI import BaseUI
-
-from UI.BaseUI import BaseUI
+from buttertoast.UI.BaseUI import BaseUI
+import getpass
+from rich.console import Console
+from rich.markdown import Markdown
 
 class TUI(BaseUI):
     def __init__(self, engine, event_manager):
@@ -58,6 +59,7 @@ class TUI(BaseUI):
         This method also handles user navigation in the menu.
         """
         self.display_title()  # Display the title once at the start
+        self.console = Console()
 
         while True:
             print("\n")
@@ -66,7 +68,8 @@ class TUI(BaseUI):
             print("1: Start data input and processing")
             print("2: List plugins")
             print("3: Settings")
-            print("4: Exit")
+            print("4: View Documentation")  
+            print("5: Exit")  
             print("\n")
 
             choice = input("Please choose an option: ").strip()
@@ -78,10 +81,12 @@ class TUI(BaseUI):
             elif choice == "3":
                 self.edit_config()  # Navigate to the settings menu
             elif choice == "4":
+                self.show_documentation_menu()  # Show documentation menu
+            elif choice == "5":
                 print("Goodbye!")
                 break  # Exit the application
             else:
-                print("Invalid selection. Please try again.")
+                self.display_message("Invalid selection. Please try again.", "error")
 
     def data_input_menu(self):
         """
@@ -92,7 +97,7 @@ class TUI(BaseUI):
         print("\nEnter the required file paths and password.")
         host = input("Host file path: ").strip()
         volume = input("Volume file path: ").strip()
-        password = input("Password: ").strip()
+        password = getpass.getpass("Password: ").strip()
         output = input("Output file path: ").strip()
 
         while True:
@@ -129,12 +134,12 @@ class TUI(BaseUI):
                     })
                     break  # Exit the loop once data is processed
                 else:
-                    print("All fields must be filled before starting the processing. Please complete the inputs.")
+                    self.display_message("All fields must be filled before starting the processing. Please complete the inputs.", "error")
             elif choice == "6":
-                print("Operation cancelled. Restarting data input process...")
+                self.display_message("Operation cancelled. Restarting data input process...", "info")
                 return  # Restart the entire data input process by returning to the main menu
             else:
-                print("Invalid selection. Please try again.")
+                self.display_message("Invalid selection. Please try again.", "info")
 
     def edit_config(self):
         """
@@ -177,10 +182,10 @@ class TUI(BaseUI):
                 if confirm == "y":
                     # Trigger the event to change the user interface
                     self.event_manager.trigger_event("change_ui", None)
-                    print("The program will now restart...")
+                    self.display_message("The program will now restart...", "info")
                     return
                 else:
-                    print("UI change canceled. Returning to the settings menu...\n")
+                    self.display_message("UI change canceled. Returning to the settings menu...", "info")
                     continue 
             elif choice == "2":
                 # Trigger the event to toggle verbose mode
@@ -193,8 +198,6 @@ class TUI(BaseUI):
             else:
                 print("Invalid selection. Please try again.")
 
-            # Reload the configuration display after each change
-            print("\nConfiguration updated. Returning to settings menu...\n")
 
     def trigger_list_data(self):
         """
@@ -230,4 +233,71 @@ class TUI(BaseUI):
             print(f"{color}{message}{colors['reset']}")
         else:
             print(f"{color}[UNKNOWN] {message}{colors['reset']}")
+
+    def show_documentation_menu(self):
+        """
+        Displays the documentation menu where the user can choose between different documentation options.
+        """
+        while True:
+            print("\nDocumentation Menu")
+            print("------------------------------------------")
+            print("1: Show How-To Instructions")
+            print("2: Show License Information")
+            print("3: Show About Information")
+            print("4: Return to Main Menu")
+            print("\n")
+            
+            doc_choice = input("Please choose an option: ").strip()
+
+            if doc_choice == "1":
+                self.show_howto()  # Display How-To instructions
+            elif doc_choice == "2":
+                self.show_license()  # Display License information
+            elif doc_choice == "3":
+                self.show_about()  # Display About information
+            elif doc_choice == "4":
+                break  # Return to the main menu
+            else:
+                print("Invalid selection. Please try again.")
+
+
+    def display_file(self, file_path):
+        """
+        This method reads a Markdown file and displays the content formatted on the console.
+        :param file_path: The path to the file to be displayed
+        """
+        try:
+
+            with open(file_path, 'r') as file:
+                md_content = file.read()
+
+
+            markdown = Markdown(md_content)
+            self.console.print(markdown, width=80)
+
+        except FileNotFoundError:
+            print(f"Error: The file at {file_path} could not be found.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+
+    def show_howto(self):
+        """
+        Menu for displaying the instructions.
+        """
+        self.display_file('buttertoast/doc/howto.md')
+
+
+    def show_license(self):
+        """
+        Menu for displaying the license.
+        """
+        self.display_file('buttertoast/doc/LICENSE')
+
+    def show_about(self):
+        """
+        Menu for displaying the about information.
+        """
+        self.display_file('buttertoast/doc/about.md')
+
 

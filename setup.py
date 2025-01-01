@@ -18,6 +18,8 @@
 
 from setuptools import setup, find_packages
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    rlong_description = fh.read()
 
 
 setup(
@@ -27,7 +29,7 @@ setup(
     author="Matthias Ferstl, Fabian Kozlowski Stefan Leippe, Malte Muthesius", 
     author_email="mail@matthias-ferstl.de",  # E-Mail-Adress
     description="A tool to hide TrueCrypt container in polyglot-files",  # shortdescription
-    long_description=open("README.md").read(),  # long description, opens README-File
+    long_description=rlong_description,  # long description, opens README-File
     long_description_content_type="text/markdown",  # readme Content type
     url="https://github.com/hexerdzimal/Project-Buttertoast", 
 
@@ -36,35 +38,22 @@ setup(
     packages=find_packages(),  # look for packege data
     include_package_data=True,  # also incule package data
     install_requires = [
-        "altgraph==0.17.4",
-        "certifi==2024.8.30",
-        "cffi==1.17.1",
-        "charset-normalizer==3.4.0",
-        "click==8.1.7",
-        "colorama==0.4.6",
+        "backports.tarfile==1.2.0",
         "cryptography==43.0.3",
+        "docopt==0.6.2",
         "fpdf==1.7.2",
-        "idna==3.10",
-        "iniconfig==2.0.0",
-        "Jinja2==3.1.4",
-        "MarkupSafe==3.0.2",
-        "packaging==24.2",
-        "pefile==2023.2.7",
+        "importlib-metadata==8.0.0",
+        "jaraco.collections==5.1.0",
+        "jinja2==3.1.4",
         "pillow==11.0.0",
-        "pluggy==1.5.0",
-        "pycparser==2.22",
+        "platformdirs==4.2.2",
         "pyinstaller==6.11.1",
-        "pyinstaller-hooks-contrib==2024.10",
-        "PySide6==6.8.0.2",
-        "PySide6_Addons==6.8.0.2",
-        "PySide6_Essentials==6.8.0.2",
+        "pyside6==6.8.0.2",
         "pytest==8.3.4",
-        "pywin32-ctypes==0.2.3",
-        "requests==2.32.3",
-        "setuptools==75.6.0",
-        "shiboken6==6.8.0.2",
-        "urllib3==2.2.3"
+        "tomli==2.0.1",
+        "yarg==0.1.10",
     ],
+
     python_requires=">=3.11",  # minimum Python version
 
 

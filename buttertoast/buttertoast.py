@@ -2,12 +2,15 @@ import sys
 import os
 import json
 import argparse
-from Engine.engine import Engine;
-from Engine.eventManager import EventManager
+from buttertoast.Engine.engine import Engine;
+from buttertoast.Engine.eventManager import EventManager
 
 
+# path of the config file
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(SCRIPT_DIR, 'config.json')
 
-def load_config(config_file='config.json'):
+def load_config(config_file=CONFIG_PATH):
     """
     Loads the configuration from the specified JSON file in the directory of the main script.
     Creates a default configuration file if none is found.
@@ -18,25 +21,21 @@ def load_config(config_file='config.json'):
     Returns:
         dict: The loaded configuration as a dictionary.
     """
-    # Directory of the current file (where the main method is located)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, config_file)
-
     default_config = {
-        "gui": True,
+        "gui": False,
         "verbose": False,
         "check": False,
     }
 
     try:
         # Attempt to open and load the configuration file
-        with open(config_path, 'r') as f:
+        with open(config_file, 'r') as f:
             config = json.load(f)
         return config
     except FileNotFoundError:
         # If the file is not found, create a default one
-        print(f"[WARNING] Configuration file '{config_path}' not found. A default file will be created.")
-        save_config(default_config, config_path)
+        print(f"[WARNING] Configuration file '{config_file}' not found. A default file will be created.")
+        save_config(default_config, config_file)
         return default_config
     except json.JSONDecodeError:
         # Exit if the file contains invalid JSON
@@ -44,7 +43,7 @@ def load_config(config_file='config.json'):
         sys.exit(1)
 
 
-def save_config(config, config_file='config.json'):
+def save_config(config, config_file=CONFIG_PATH):
     """
     Saves the updated configuration to a JSON file in the directory of the main script.
 
@@ -52,19 +51,16 @@ def save_config(config, config_file='config.json'):
         config (dict): The configuration dictionary to save.
         config_file (str): Name of the configuration file (default: 'config.json').
     """
-    # Directory of the current file (where the main method is located)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(script_dir, config_file)
-
     try:
         # Attempt to write the configuration to the file
-        with open(config_path, 'w') as f:
+        with open(config_file, 'w') as f:
             json.dump(config, f, indent=4)
-        print(f"[INFO] Configuration successfully saved to '{config_path}'.")
+        print(f"[INFO] Configuration successfully saved to '{config_file}'.")
     except Exception as e:
         # Handle any exceptions during file writing
         print(f"[ERROR] Error saving the configuration file: {e}")
         sys.exit(1)
+
 
 
 def parse_arguments():

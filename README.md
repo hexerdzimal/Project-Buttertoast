@@ -69,40 +69,28 @@ The application supports plugins to extend its functionality. You can add new pl
 - **Dependencies**: The necessary libraries are listed in `requirements.txt`. Key libraries include:
    - `cryptography` for secure encryption
    - `Pillow` for image handling
-   - `requests` for network requests
+   - `PySide6` for the gui
+   - `importlib` to make the plugins work
    - and more.
 - **Supported Operating Systems**: Any OS that can run Python 3.x (Windows, macOS, Linux)
 
 ### Key Dependencies:
-```txt
-altgraph==0.17.4
-certifi==2024.8.30
-cffi==1.17.1
-charset-normalizer==3.4.0
-click==8.1.7
-colorama==0.4.6
+```
+backports.tarfile==1.2.0
 cryptography==43.0.3
+docopt==0.6.2
 fpdf==1.7.2
-idna==3.10
-iniconfig==2.0.0
-Jinja2==3.1.4
-MarkupSafe==3.0.2
-packaging==24.2
-pefile==2023.2.7
+importlib-metadata==8.0.0
+jaraco.collections==5.1.0
+jinja2==3.1.4
 pillow==11.0.0
-pluggy==1.5.0
-pycparser==2.22
+platformdirs==4.2.2
 pyinstaller==6.11.1
-pyinstaller-hooks-contrib==2024.10
-PySide6==6.8.0.2
-PySide6_Addons==6.8.0.2
-PySide6_Essentials==6.8.0.2
+pyside6==6.8.0.2
 pytest==8.3.4
-pywin32-ctypes==0.2.3
-requests==2.32.3
-setuptools==75.6.0
-shiboken6==6.8.0.2
-urllib3==2.2.3
+tomli==2.0.1
+yarg==0.1.10
+
 ```
 
 ## Limitations
@@ -116,7 +104,7 @@ urllib3==2.2.3
 
 - **Multi-Language Support**: Plans to add support for multiple languages to make the application more accessible.
 - **Additional Encryption Algorithms**: Future updates may include support for other encryption algorithms.
-- **Further Features**: Ongoing development may add additional features, such as improved user interfaces or other cryptographic techniques.
+- **Further Features**: Ongoing development may add additional features, such as webbased user interfaces or other cryptographic techniques.
 
 ## Contributing
 

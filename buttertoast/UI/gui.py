@@ -16,14 +16,16 @@
 # For more information, contact: mail@matthias-ferstl.de
 
 
-from UI.BaseUI import BaseUI
-from PySide6.QtCore import QPropertyAnimation, Qt
-from PySide6.QtGui import QPixmap, QIcon
+from buttertoast.UI.BaseUI import BaseUI
+from PySide6.QtCore import QPropertyAnimation
+from PySide6.QtGui import QPixmap, QIcon, QAction
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout,
-    QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox
+    QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox, QDialog
 )
 import sys
+
+LOGO_PATH= "buttertoast/res/BuToTransp.png"
 
 class FileButton(QPushButton):
     """A custom button that supports drag-and-drop functionality."""
@@ -48,6 +50,8 @@ class FileButton(QPushButton):
             if self.drop_handler: # If a handler is defined
                 self.drop_handler(file_path)
 
+    
+
 class GUI(BaseUI):
     def __init__(self, engine, event_manager):
         super().__init__(engine, event_manager)
@@ -70,11 +74,13 @@ class GUI(BaseUI):
         # Create central widget
         central_widget = QWidget()
         self.window.setCentralWidget(central_widget)
-        self.window.setWindowIcon(QIcon("res/BuToTransp.png"))
+        self.window.setWindowIcon(QIcon(LOGO_PATH))
+
+        self.create_menu()
 
         # Add background image
         self.background_label = QLabel(central_widget)
-        self.background_label.setPixmap(QPixmap("res/BuToTransp.png"))
+        self.background_label.setPixmap(QPixmap(LOGO_PATH))
         self.background_label.setScaledContents(True)
         self.background_label.setGeometry(0, 0, 600, 600)
 
@@ -168,6 +174,34 @@ class GUI(BaseUI):
         # Hide log area initially
         self.log_output.setMaximumHeight(0)
         self.toggle_log_button.setChecked(False)
+
+    def create_menu(self):
+        """Erstellt das Menü mit Optionen."""
+        # Menüleiste
+        menubar = self.window.menuBar()
+
+        # Erstelle das "Settings"-Menü
+        settings_menu = menubar.addMenu("Settings")
+
+        # Füge Aktionen für die Konfigurationsoptionen hinzu
+        toggle_gui_action = QAction("Toggle Graphical User Interface", self.window)
+        toggle_gui_action.triggered.connect(self.toggle_gui)
+
+        toggle_verbose_action = QAction("Toggle Verbose Mode", self.window)
+        toggle_verbose_action.triggered.connect(self.toggle_verbose)
+
+        toggle_check_action = QAction("Toggle Auto-Check", self.window)
+        toggle_check_action.triggered.connect(self.toggle_check)
+
+        # Konfiguration bearbeiten Aktion hinzufügen
+        edit_config_action = QAction("Edit Configurations", self.window)
+        edit_config_action.triggered.connect(self.edit_config)
+
+        # Füge die Aktionen zum Menü hinzu
+        settings_menu.addAction(toggle_gui_action)
+        settings_menu.addAction(toggle_verbose_action)
+        settings_menu.addAction(toggle_check_action)
+        settings_menu.addAction(edit_config_action)  # Neue Aktion zum Bearbeiten der Konfigurationen
 
     def handle_dropped_file(self, file_type, file_path):
         """Processes the dropped file based on its type."""
@@ -270,9 +304,103 @@ class GUI(BaseUI):
             self.log_output.append(f"{message}")
         else:
             self.log_output.append(f"[UNKNOWN] {message}")
+
+    def toggle_gui(self):
+        """Umschalten der grafischen Benutzeroberfläche."""
+        confirm = self.display_confirmation_dialog("Changing the user interface will restart the program immediately. Do you want to continue?")
+        if confirm:
+            self.event_manager.trigger_event("change_ui", None)
+            self.display_message("The program will now restart...", "info")
+            self.close_window()  # Schließt das Fenster und startet das Programm neu
+        else:
+            self.display_message("UI change canceled. Returning to the settings menu...", "info")
+
+    def toggle_verbose(self):
+        """Umschalten des verbose-Modus."""
+        self.event_manager.trigger_event("change_verbose", None)
+
+    def toggle_check(self):
+        """Umschalten der Auto-Check-Option."""
+        self.event_manager.trigger_event("change_check", None)
+
+    def display_confirmation_dialog(self, message):
+        """Bestätigungsdialog anzeigen."""
+        reply = QMessageBox.question(self.window, "Confirm", message, QMessageBox.Yes | QMessageBox.No)
+        return reply == QMessageBox.Yes
+
+    def close_window(self):
+        """Schließt das aktuelle Fenster."""
+        self.window.close()
+
+    def edit_config(self):
+        """Zeigt ein Dialogfenster zum Bearbeiten der Konfigurationen."""
+        # Ein einfaches Dialogfenster zur Konfiguration
+        config_dialog = QDialog(self.window)
+        config_dialog.setWindowTitle("Edit Configurations")
         
-    def edit_config():
+        layout = QVBoxLayout()
+
+        # Beispiel: GUI aktivieren/deaktivieren
+        self.gui_checkbox = QCheckBox("Enable Graphical User Interface", config_dialog)
+        self.gui_checkbox.setChecked(self.engine.load_config().get("gui", False))
+        layout.addWidget(self.gui_checkbox)
+
+        # Beispiel: Verbose aktivieren/deaktivieren
+        self.verbose_checkbox = QCheckBox("Enable Verbose Mode", config_dialog)
+        self.verbose_checkbox.setChecked(self.engine.load_config().get("verbose", False))
+        layout.addWidget(self.verbose_checkbox)
+
+        # Beispiel: Auto-Check aktivieren/deaktivieren
+        self.check_checkbox = QCheckBox("Enable Auto-Check", config_dialog)
+        self.check_checkbox.setChecked(self.engine.load_config().get("check", False))
+        layout.addWidget(self.check_checkbox)
+
+        # Bestätigungsbutton zum Anwenden der Änderungen
+        apply_button = QPushButton("Apply Changes", config_dialog)
+        apply_button.clicked.connect(self.apply_config_changes)
+        layout.addWidget(apply_button)
+
+        config_dialog.setLayout(layout)
+        config_dialog.exec()
+
+    def apply_config_changes(self):
+        """Wendet die Änderungen an den Konfigurationen an."""
+        new_config = {
+            "gui": self.gui_checkbox.isChecked(),
+            "verbose": self.verbose_checkbox.isChecked(),
+            "check": self.check_checkbox.isChecked()
+        }
+
+        # Speichern der neuen Konfiguration und Auslösen der Events
+        self.engine.save_config(new_config)
+        self.event_manager.trigger_event("update_config", new_config)
+        self.display_message("Configurations have been updated.", "info")
+
+        # Bestätigungsnachricht anzeigen
+        self.display_message("The settings have been updated successfully.", "info")
+
+   
+    def show_howto(self):
+        """
+        Menu for displaying the instructions.
+        """
         pass
+
+
+    def show_license(self):
+        """
+        Menu for displaying the license.
+        """
+        pass
+
+
+    def show_about(self):
+        """
+        Menu for displaying the about information.
+        """
+        pass
+
+        
 
     def run(self):
         """Starts the GUI."""

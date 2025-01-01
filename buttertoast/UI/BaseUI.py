@@ -57,3 +57,24 @@ class BaseUI(ABC):
         Menu for editing settings in the configuration.
         """
         pass
+
+    @abstractmethod
+    def show_howto(self):
+        """
+        Menu for displaying the instructions.
+        """
+        pass
+
+    @abstractmethod
+    def show_license(self):
+        """
+        Menu for displaying the license.
+        """
+        pass
+
+    @abstractmethod
+    def show_about(self):
+        """
+        Menu for displaying the about information.
+        """
+        pass
