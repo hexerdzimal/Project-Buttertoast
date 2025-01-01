@@ -42,6 +42,26 @@ def load_config(config_file=CONFIG_PATH):
         print("[ERROR] Error loading the JSON configuration file. If this error persists, delete the config file in the program directory .")
         sys.exit(1)
 
+def save_config(config, config_file=CONFIG_PATH):
+    """
+    Speichert die Konfiguration in einer JSON-Datei.
+
+    Args:
+        config (dict): Die zu speichernde Konfiguration.
+        config_file (str): Der Pfad zur Konfigurationsdatei (default: 'config.json').
+    """
+    try:
+        # Sicherstellen, dass der Pfad existiert
+        os.makedirs(os.path.dirname(config_file), exist_ok=True)
+
+        # Konfiguration als JSON speichern
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=4)
+
+        print(f"[INFO] Konfiguration erfolgreich in '{config_file}' gespeichert.")
+
+    except Exception as e:
+        print(f"[ERROR] Fehler beim Speichern der Konfiguration: {e}")
 
 import argparse
 
