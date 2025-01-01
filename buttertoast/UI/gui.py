@@ -25,8 +25,11 @@ from PySide6.QtWidgets import (
 )
 import sys
 import markdown
+import importlib.resources
 
-LOGO_PATH= "buttertoast/res/BuToTransp.png"
+# Zugriff auf die Ressourcen im Paket buttertoast
+with importlib.resources.path("buttertoast.res", "BuToTransp.png") as logo_path:
+    LOGO_PATH = str(logo_path)
 
 class FileButton(QPushButton):
     """A custom button that supports drag-and-drop functionality."""
@@ -361,19 +364,19 @@ class GUI(BaseUI):
         """
         Menu for displaying the instructions.
         """
-        self.display_file_in_dialog('buttertoast/doc/howto.md', "How To Use")
+        self.display_file_in_dialog('howto.md', "How To Use")
 
     def show_license(self):
         """
         Menu for displaying the license.
         """
-        self.display_file_in_dialog('buttertoast/doc/LICENSE', "License")
+        self.display_file_in_dialog('LICENSE', "License")
 
     def show_about(self):
         """
         Menu for displaying the about information.
         """
-        self.display_file_in_dialog('buttertoast/doc/about.md', "About Buttertoast")
+        self.display_file_in_dialog('about.md', "About Buttertoast")
 
     def trigger_list_data(self):
         """
@@ -385,17 +388,20 @@ class GUI(BaseUI):
             self.toggle_log_window()  # Expand the log window
         self.event_manager.trigger_event("list_data", None)
 
-    def display_file_in_dialog(self, file_path, title):
+    def display_file_in_dialog(self, file_name, title):
         """
-        Reads a file and displays its content in a dialog box with formatted text (Markdown).
+        Reads a file and displays its content in a dialog box with formatted text (HTML).
         
         Args:
-            file_path (str): The path to the file to be displayed.
+            file_name (str): The name of the file to be displayed (relative to the package).
             title (str): The title of the dialog box.
         """
         try:
-            with open(file_path, 'r') as file:
-                content = file.read()
+            # Zugriff auf die Datei im Paket "buttertoast.doc"
+            with importlib.resources.path("buttertoast.doc", file_name) as file_path:
+                # Die Datei öffnen und den Inhalt lesen
+                with open(file_path, 'r') as file:
+                    content = file.read()
 
             # Convert Markdown content to HTML
             html_content = self.convert_markdown_to_html(content)

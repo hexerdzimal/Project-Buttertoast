@@ -25,17 +25,34 @@ from buttertoast.UI.CLI import CLI
 from buttertoast.UI.tui import TUI  
 from buttertoast.UI.gui import GUI     
 from buttertoast.Crypt.cryptomat import Cryptomat
-
+import subprocess
 
 def restart_program():
-        """Restarts buttertoast"""
-        try:
-            print("Restarting Buttertoast")
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
-        except Exception as e:
-            print(f"Error restarting buttertoast: {e}")
-            sys.exit(1)
+    """Restarts buttertoast"""
+    try:
+        print("Restarting Buttertoast")
+
+        # Get the absolute path to the current script
+        script_path = os.path.abspath(sys.argv[0])
+
+        # If running in a global installation, explicitly find the script in the Scripts folder
+        if os.name == 'nt' and 'Scripts' in os.path.dirname(script_path):
+            # For global installation, determine the script path explicitly
+            script_path = os.path.join(os.path.dirname(sys.executable), 'Scripts', 'buttertoast')
+
+        # Ensure that we replace backslashes with forward slashes on Windows
+        if os.name == 'nt':  # If on Windows
+            script_path = script_path.replace("\\", "/")
+
+        # Restart using subprocess
+        subprocess.Popen([sys.executable, script_path] + sys.argv[1:], close_fds=True)
+
+        # Exit the current program after starting the new process
+        sys.exit(0)
+
+    except Exception as e:
+        print(f"Error restarting buttertoast: {e}")
+        sys.exit(1)
    
 
 class Engine:

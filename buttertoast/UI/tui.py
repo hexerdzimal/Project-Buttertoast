@@ -17,6 +17,7 @@
 
 from buttertoast.UI.BaseUI import BaseUI
 import getpass
+import importlib.resources
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -262,22 +263,23 @@ class TUI(BaseUI):
                 print("Invalid selection. Please try again.")
 
 
-    def display_file(self, file_path):
+    def display_file(self, resource_path):
         """
-        This method reads a Markdown file and displays the content formatted on the console.
-        :param file_path: The path to the file to be displayed
+        This method reads a Markdown file from the package resources and displays the content formatted on the console.
+        :param resource_path: The path to the file to be displayed (relative to the package)
         """
         try:
+            # Zugriff auf die Datei im Paket
+            with importlib.resources.path("buttertoast.doc", resource_path) as file_path:
+                with open(file_path, 'r') as file:
+                    md_content = file.read()
 
-            with open(file_path, 'r') as file:
-                md_content = file.read()
-
-
+            # Markdown-Inhalt rendern und anzeigen
             markdown = Markdown(md_content)
             self.console.print(markdown, width=80)
 
         except FileNotFoundError:
-            print(f"Error: The file at {file_path} could not be found.")
+            print(f"Error: The file at {resource_path} could not be found.")
         except Exception as e:
             print(f"An error occurred: {e}")
 
@@ -286,19 +288,20 @@ class TUI(BaseUI):
         """
         Menu for displaying the instructions.
         """
-        self.display_file('buttertoast/doc/howto.md')
+        self.display_file('howto.md')
 
 
     def show_license(self):
         """
         Menu for displaying the license.
         """
-        self.display_file('buttertoast/doc/LICENSE')
+        self.display_file('LICENSE')
+
 
     def show_about(self):
         """
         Menu for displaying the about information.
         """
-        self.display_file('buttertoast/doc/about.md')
+        self.display_file('about.md')
 
 
