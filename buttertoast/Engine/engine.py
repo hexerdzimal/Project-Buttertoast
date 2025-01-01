@@ -21,7 +21,7 @@ import sys
 import json
 from buttertoast.Utilities.try_tchuntng import run_tchuntng, check_tchuntng
 from buttertoast.Engine.plugin_Loader import PluginLoader
-from buttertoast.UI.BaseUI import BaseUI
+from buttertoast.UI.CLI import CLI
 from buttertoast.UI.tui import TUI  
 from buttertoast.UI.gui import GUI     
 from buttertoast.Crypt.cryptomat import Cryptomat
@@ -47,12 +47,6 @@ class Engine:
         self.config = self.load_config()
         self.ui = None
 
-        # Event-Handler registrieren
-        self.event_manager.register_event("process_data", self.on_process_data)
-        self.event_manager.register_event("list_data", self.on_list_data)
-        self.event_manager.register_event("change_ui", self.on_change_ui)
-        self.event_manager.register_event("change_verbose", self.on_change_verbose)
-        self.event_manager.register_event("change_check", self.on_change_check)
 
     def load_config(self):
         """
@@ -66,7 +60,7 @@ class Engine:
         """
 
         if not os.path.exists(self.CONFIG_PATH):
-            raise FileNotFoundError(f"The configuration file {config_path} was not found.")
+            raise FileNotFoundError(f"The configuration file {self.CONFIG_PATH} was not found.")
         
         with open(self.CONFIG_PATH, "r") as file:
             config = json.load(file)
@@ -206,11 +200,18 @@ class Engine:
 
     def start(self):
         """
-        Starts the engine, initializes the UI, and links it to the engine.
+        Starts the engine, registers the handler, initializes the UI, and links it to the engine.
 
         Raises:
             Exception: If there is an error during engine initialization or UI startup.
         """
+        # register handler
+        self.event_manager.register_event("process_data", self.on_process_data)
+        self.event_manager.register_event("list_data", self.on_list_data)
+        self.event_manager.register_event("change_ui", self.on_change_ui)
+        self.event_manager.register_event("change_verbose", self.on_change_verbose)
+        self.event_manager.register_event("change_check", self.on_change_check)
+
         try:
             self.select_ui()
             self.ui.run()
@@ -221,11 +222,12 @@ class Engine:
 
     def on_process_data(self, data):
         """
-        Event handler for the 'process_data' event.
+        Event handler for the 'process_data' event. Also used if tool is runned as CLI
 
         Args:
             data (dict): Data passed from the UI.
         """
+
         try:
             host = data["host"]
             volume = data["volume"]
@@ -236,10 +238,54 @@ class Engine:
             host_bytecode = self.read_file_as_bytecode(host)
             volume_bytecode = self.read_file_as_bytecode(volume)
             self.process_data(host, host_bytecode, volume_bytecode, password, output)
+            return
 
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error: {str(e)}", "error")
+
+
+    def process_data_cli(self, data, verbose):
+        """
+        Event handler for the 'process_data' event when the tool is run in CLI mode.
+
+        Args:
+            data (dict): Data passed from the CLI.
+            verbose (bool): Flag to enable verbose output.
+        """
+        self.ui = CLI(verbose)
+        if verbose:
+            print("Verbose mode enabled.")
+            print("Starting the processing of data in CLI mode...")
+
+        try:
+            host = data["host"]
+            volume = data["volume"]
+            password = data["password"]
+            output = data["output"]
+
+            if verbose:
+                print(f"Host file: {host}")
+                print(f"Volume file: {volume}")
+                print(f"Password: {password}")
+                print(f"Output file: {output}")
+
+            # Read files and start processing
+            host_bytecode = self.read_file_as_bytecode(host)
+            volume_bytecode = self.read_file_as_bytecode(volume)
+
+            if verbose:
+                print(f"Read host file: {host}")
+                print(f"Read volume file: {volume}")
+
+            self.process_data(host, host_bytecode, volume_bytecode, password, output)
+
+            if verbose:
+                print(f"Processing complete. Output saved to {output}")
+
+        except Exception as e:
+            # Handle errors and output to the console
+            print(f"Error during processing: {str(e)}")
 
     def on_list_data(self, _):
         try:

@@ -55,12 +55,13 @@ class FileButton(QPushButton):
 
 class GUI(BaseUI):
     def __init__(self, engine, event_manager):
-        super().__init__(engine, event_manager)
+        super().__init__(engine)
 
         # Attributes for files and save locations
         self.host_file = None
         self.guest_file = None
         self.save_location = None
+        self.event_manager =event_manager
 
         if not QApplication.instance():
             self.app = QApplication(sys.argv)

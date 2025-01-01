@@ -23,14 +23,14 @@ class BaseUI(ABC):
     An abstract base class for all UI classes. Both UI types (GUI and TUI) will inherit from this class.
     """
 
-    def __init__(self, engine, event_manager):
+    def __init__(self, engine):
         """
-        Initializes the UI and connects it to the event manager.
+        Initializes the UI and connects it to the engine.
 
         Args:
-            event_manager (EventManager): The event manager for communication.
+            engine (EventManager): The engine that runs the tool.
         """
-        self.event_manager = event_manager
+
         self.engine = engine
 
     @abstractmethod

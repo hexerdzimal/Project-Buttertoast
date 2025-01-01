@@ -16,7 +16,7 @@
 # For more information, contact: mail@matthias-ferstl.de
 
 
-from Engine.plugin_Interface import plugin_Interface
+from buttertoast.Engine.plugin_Interface import plugin_Interface
 import struct
 import zlib
 

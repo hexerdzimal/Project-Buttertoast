@@ -28,7 +28,8 @@ class TUI(BaseUI):
         Args:
             event_manager: The event manager responsible for triggering events in the application.
         """
-        super().__init__(engine, event_manager)
+        super().__init__(engine)
+        self.event_manager = event_manager
 
     def display_title(self):
         """

@@ -43,25 +43,7 @@ def load_config(config_file=CONFIG_PATH):
         sys.exit(1)
 
 
-def save_config(config, config_file=CONFIG_PATH):
-    """
-    Saves the updated configuration to a JSON file in the directory of the main script.
-
-    Args:
-        config (dict): The configuration dictionary to save.
-        config_file (str): Name of the configuration file (default: 'config.json').
-    """
-    try:
-        # Attempt to write the configuration to the file
-        with open(config_file, 'w') as f:
-            json.dump(config, f, indent=4)
-        print(f"[INFO] Configuration successfully saved to '{config_file}'.")
-    except Exception as e:
-        # Handle any exceptions during file writing
-        print(f"[ERROR] Error saving the configuration file: {e}")
-        sys.exit(1)
-
-
+import argparse
 
 def parse_arguments():
     """
@@ -74,11 +56,48 @@ def parse_arguments():
         description="Create a polyglot file by embedding a TrueCrypt or VeraCrypt volume into another file."
     )
 
-    parser.add_argument('--testFile', help="Check a file by extension and run the corresponding plugin.")
-    parser.add_argument('--changeui', '-cui', action='store_true', help="Toggle the GUI setting in the configuration.")
-    parser.add_argument('--changeverbose', '-cv', action='store_true', help="Toggle the verbose setting in the configuration.")
+    # Option für den CLI-Modus
+    parser.add_argument(
+        '-cli', 
+        action='store_true', 
+        help="Run the tool in CLI mode"
+    )
+
+    # Option für den verbose-Modus
+    parser.add_argument(
+        '-v', '--verbose', 
+        action='store_true', 
+        help="Enable verbose output"
+    )
+
+    # Falls -cli angegeben ist, müssen diese Argumente übergeben werden
+    parser.add_argument(
+        'host', 
+        type=str, 
+        nargs='?', 
+        help="Path to the host file"
+    )
+    parser.add_argument(
+        'volume', 
+        type=str, 
+        nargs='?', 
+        help="Path to the volume file"
+    )
+    parser.add_argument(
+        'password', 
+        type=str, 
+        nargs='?', 
+        help="Password for the volume"
+    )
+    parser.add_argument(
+        'output', 
+        type=str, 
+        nargs='?', 
+        help="Path to the output file"
+    )
 
     return parser.parse_args()
+
 
 
 def main():
@@ -91,50 +110,33 @@ def main():
 
     # Parse command-line arguments
     args = parse_arguments()
+    verbose = args.verbose
 
-    # Flag to check if any changes were made to the configuration
-    config_changed = False
+    if args.cli:
+        # Wenn im CLI-Modus, müssen die erforderlichen Argumente vorhanden sein
+        if not all([args.host, args.volume, args.password, args.output]):
+            print("Error: Missing required arguments for CLI mode. Please provide host, volume, password, and output.")
+            return
 
-    # Update the configuration based on command-line arguments
-    if args.changeui:
-        # Toggle the 'gui' setting
-        new_gui_value = not config.get('gui', False)  # Default to False if 'gui' is not present
-        if config['gui'] != new_gui_value:  # Only save if the value has changed
-            config['gui'] = new_gui_value
-            config_changed = True
+        # Erstelle das "data" Paket
+        data = {
+            "host": args.host,
+            "volume": args.volume,
+            "password": args.password,
+            "output": args.output
+        }
 
-    if args.changeverbose:
-        # Toggle the 'verbose' setting
-        new_verbose_value = not config.get('verbose', False)  # Default to False if 'verbose' is not present
-        if config['verbose'] != new_verbose_value:  # Only save if the value has changed
-            config['verbose'] = new_verbose_value
-            config_changed = True
-
-    # Save the configuration only if changes were made
-    if config_changed:
-        save_config(config)
-
-    # If a file is specified for testing
-    if args.testFile:
-        try:
-            # Attempt to read the file
-            with open(args.testFile, 'rb') as file:
-                file_data = file.read()  # Read the file content
-                print(f"[DEBUG] File '{args.testFile}' successfully read. Size: {len(file_data)} bytes")
-        except FileNotFoundError:
-            print(f"[ERROR] File '{args.testFile}' not found.")
-            sys.exit(1)
-
-        # Create an instance of the Engine and execute the plugin
-        engine = Engine()
-        engine.testFile()
-        return
-
-    # Start the main program if no test file is specified
-    
-    event_manager = EventManager()
-    engine = Engine(event_manager)
-    engine.start()
+        # Instanziiere den EventManager und Engine und rufe on_process_data auf
+        event_manager = EventManager()
+        engine = Engine(event_manager)
+        
+        # Rufe die on_process_data Methode auf
+        engine.process_data_cli(data, verbose)
+    else:
+        # Falls nicht im CLI-Modus, nur den EventManager und Engine starten
+        event_manager = EventManager()
+        engine = Engine(event_manager)
+        engine.start()
 
 
 if __name__ == "__main__":

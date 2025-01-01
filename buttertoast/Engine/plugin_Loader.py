@@ -61,10 +61,9 @@ class PluginLoader:
             self.ui.display_message(f"Removing plugin directory '{self.directory}' from sys.path...", "verbose")
             sys.path.remove(self.directory)
 
-    def find_plugin_in_all_directories(self, extension):
+    def find_plugin_in_directory(self, extension):
         """
-        Looks for a plugin in both the specified local plugin directory and global
-        Python paths (including those installed via pip).
+        Looks for a plugin in the specified local plugin directory.
 
         Args:
             extension (str): The extension to find the plugin for.
@@ -72,27 +71,18 @@ class PluginLoader:
         Returns:
             str: The name of the plugin module if found, or None.
         """
-        self.ui.display_message(f"Trying to locate the plugin for extension '{extension}' in all directories...", "verbose")
+        self.ui.display_message(f"Trying to locate the plugin for extension '{extension}' in the plugin directory...", "verbose")
         
-        # Try to find the plugin locally first
+        # Try to find the plugin locally in the specified directory
         self.ui.display_message(f"Searching for the plugin in the local directory '{self.directory}'...", "verbose")
         plugin_name = self.get_plugin_name(extension)
+        
         if plugin_name:
             self.ui.display_message(f"Found plugin '{plugin_name}' for extension '{extension}' locally.", "verbose")
             return plugin_name
-        
-        # Try to find the plugin in globally installed packages
-        self.ui.display_message(f"Attempting to locate the plugin for extension '{extension}' in global Python paths...", "verbose")
-        self.add_plugin_directory_to_sys_path()
-        plugin_name = self.get_plugin_name(extension)
-        self.remove_plugin_directory_from_sys_path()
-
-        if plugin_name:
-            self.ui.display_message(f"Found plugin '{plugin_name}' for extension '{extension}' globally.", "verbose")
         else:
-            self.ui.display_message(f"Plugin for extension '{extension}' could not be found globally.", "verbose")
-        
-        return plugin_name
+            self.ui.display_message(f"Plugin for extension '{extension}' could not be found in the local directory.", "verbose")
+            return None
 
     def find_file_with_partition(self, extension):
         """
@@ -154,7 +144,7 @@ class PluginLoader:
         if self.ui:
             self.ui.display_message(f"Trying to load the plugin for extension '{extension}'...", "verbose")
         
-        plugin_name = self.find_plugin_in_all_directories(extension)
+        plugin_name = self.find_plugin_in_directory(extension)
         if not plugin_name:
             return
         
