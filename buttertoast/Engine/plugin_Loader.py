@@ -42,10 +42,7 @@ class PluginLoader:
         # Debugging: print the current working directory and where we are looking for plugins
         current_dir = os.getcwd()
         plugin_path = os.path.join(current_dir, self.directory)
-        
-        if self.ui:
-            self.ui.display_message(f"Current working directory: {current_dir}", "error")
-            self.ui.display_message(f"Looking for plugins in: {plugin_path}", "error")
+
 
     def add_plugin_directory_to_sys_path(self):
         """
@@ -53,6 +50,7 @@ class PluginLoader:
         even if they are added dynamically or outside of the running environment.
         """
         if self.directory not in sys.path:
+            self.ui.display_message(f"Adding plugin directory '{self.directory}' to sys.path...", "verbose")
             sys.path.insert(0, self.directory)
 
     def remove_plugin_directory_from_sys_path(self):
@@ -60,6 +58,7 @@ class PluginLoader:
         Removes the plugin directory from sys.path after plugin execution to clean up.
         """
         if self.directory in sys.path:
+            self.ui.display_message(f"Removing plugin directory '{self.directory}' from sys.path...", "verbose")
             sys.path.remove(self.directory)
 
     def find_plugin_in_all_directories(self, extension):
@@ -73,15 +72,25 @@ class PluginLoader:
         Returns:
             str: The name of the plugin module if found, or None.
         """
+        self.ui.display_message(f"Trying to locate the plugin for extension '{extension}' in all directories...", "verbose")
+        
         # Try to find the plugin locally first
+        self.ui.display_message(f"Searching for the plugin in the local directory '{self.directory}'...", "verbose")
         plugin_name = self.get_plugin_name(extension)
         if plugin_name:
+            self.ui.display_message(f"Found plugin '{plugin_name}' for extension '{extension}' locally.", "verbose")
             return plugin_name
         
         # Try to find the plugin in globally installed packages
+        self.ui.display_message(f"Attempting to locate the plugin for extension '{extension}' in global Python paths...", "verbose")
         self.add_plugin_directory_to_sys_path()
         plugin_name = self.get_plugin_name(extension)
         self.remove_plugin_directory_from_sys_path()
+
+        if plugin_name:
+            self.ui.display_message(f"Found plugin '{plugin_name}' for extension '{extension}' globally.", "verbose")
+        else:
+            self.ui.display_message(f"Plugin for extension '{extension}' could not be found globally.", "verbose")
         
         return plugin_name
 
@@ -96,17 +105,20 @@ class PluginLoader:
         Returns:
             str: The filename of the matching file, or None if no match is found.
         """
+        self.ui.display_message(f"Searching for a file in '{self.directory}' with the partition containing '{extension}'...", "verbose")
         files = [f for f in os.listdir(self.directory) if f.startswith('btp_') and f.endswith('.py')]
         
         for file in files:
             partitions = file[4:-3].split('_')  # Remove "btp_" prefix and ".py" suffix
+            self.ui.display_message(f"Checking file '{file}' for extension match with '{extension}'...", "verbose")
             
             if extension in partitions:
+                self.ui.display_message(f"Found file '{file}' for extension '{extension}'.", "verbose")
                 return file
         
-        if self.ui:
-            self.ui.display_message(f"Could not find an extension for '{extension}'. Please check the plugin folder.", "error")
+        self.ui.display_message(f"Could not find an extension for '{extension}'. Please check the plugin folder.", "error")
         return None
+
 
     def get_plugin_name(self, extension):
         """
@@ -196,7 +208,7 @@ class PluginLoader:
         """
         available_plugins = []
         
-        # Berechne den absoluten Pfad des Plugin-Ordners relativ zum Skript
+        # find path 
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         plugin_path = os.path.join(project_root, self.directory)
 
@@ -206,14 +218,15 @@ class PluginLoader:
             return available_plugins
 
         if self.ui:
-            self.ui.display_message(f"Available plugins in the directory '{plugin_path}':", "info")
+            self.ui.display_message(f"Available plugins:", "message")
+            self.ui.display_message(f"-" * 50, "message")
         
         for filename in os.listdir(plugin_path):
             if filename.startswith("btp_") and filename.endswith(".py") and filename != "__init__.py":
-                plugin_name = filename[:-3]  # Entferne die ".py"-Erweiterung
+                plugin_name = filename[:-3]  # removing ".py"
                 try:
                     if self.ui:
-                        self.ui.display_message(f"{plugin_name}", "info")
+                        self.ui.display_message(f"{plugin_name}", "message")
                 except Exception as e:
                     if self.ui:
                         self.ui.display_message(f"Error loading plugin '{plugin_name}': {e}", "error")

@@ -45,11 +45,13 @@ setup(
         "importlib-metadata==8.0.0",
         "jaraco.collections==5.1.0",
         "jinja2==3.1.4",
+        "markdown ==3.7",
         "pillow==11.0.0",
         "platformdirs==4.2.2",
         "pyinstaller==6.11.1",
         "pyside6==6.8.0.2",
         "pytest==8.3.4",
+        "rich==13.9.4"
         "tomli==2.0.1",
         "yarg==0.1.10",
     ],

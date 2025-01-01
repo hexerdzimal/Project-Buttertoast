@@ -18,7 +18,7 @@ Note that the password is *not stored*; it is only temporarily used to modify th
 
 ### 4. **Start the Hiding Process**
 Once you have selected the host file, the TrueCrypt container, and entered the password, you can initiate the process by clicking on "Execute."
-The software will embed the container into the selected file, and the file will remain usable as before. The hidden file can be used just like the original file – whether it’s opening the image or playing the audio file.
+The software will embed the container into the selected file, and the file will remain usable as before. The hidden file can be used just like the original file,  whether it is opening the image or playing the audio file.
 
 Important: The embedded file can still be mounted and opened in TrueCrypt, where the hidden container can be accessed with the password.
 

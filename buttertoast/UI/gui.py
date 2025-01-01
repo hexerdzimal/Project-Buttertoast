@@ -18,12 +18,13 @@
 
 from buttertoast.UI.BaseUI import BaseUI
 from PySide6.QtCore import QPropertyAnimation
-from PySide6.QtGui import QPixmap, QIcon, QAction
+from PySide6.QtGui import QPixmap, QIcon, QAction, QFont
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout,
     QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox, QDialog
 )
 import sys
+import markdown
 
 LOGO_PATH= "buttertoast/res/BuToTransp.png"
 
@@ -68,8 +69,8 @@ class GUI(BaseUI):
 
         # Create main window
         self.window = QMainWindow()
-        self.window.setWindowTitle("Buttertoast")
-        self.window.setGeometry(100, 100, 600, 600)
+        self.window.setWindowTitle("Buttertoast. The melting pot for polyglot")
+        self.window.setGeometry(100, 100, 600, 700)
 
         # Create central widget
         central_widget = QWidget()
@@ -176,14 +177,19 @@ class GUI(BaseUI):
         self.toggle_log_button.setChecked(False)
 
     def create_menu(self):
-        """Erstellt das Menü mit Optionen."""
-        # Menüleiste
+        """
+        Creates the menu with options for the application.
+
+        This method initializes the menu bar, adds settings and about menus, 
+        and links the menu actions to their respective handlers.
+        """
+        # Menu bar
         menubar = self.window.menuBar()
 
-        # Erstelle das "Settings"-Menü
+        # Create the "Settings" menu
         settings_menu = menubar.addMenu("Settings")
 
-        # Füge Aktionen für die Konfigurationsoptionen hinzu
+        # Add actions for configuration options
         toggle_gui_action = QAction("Toggle Graphical User Interface", self.window)
         toggle_gui_action.triggered.connect(self.toggle_gui)
 
@@ -193,15 +199,34 @@ class GUI(BaseUI):
         toggle_check_action = QAction("Toggle Auto-Check", self.window)
         toggle_check_action.triggered.connect(self.toggle_check)
 
-        # Konfiguration bearbeiten Aktion hinzufügen
-        edit_config_action = QAction("Edit Configurations", self.window)
-        edit_config_action.triggered.connect(self.edit_config)
 
-        # Füge die Aktionen zum Menü hinzu
+        # Add the actions to the "Settings" menu
         settings_menu.addAction(toggle_gui_action)
         settings_menu.addAction(toggle_verbose_action)
         settings_menu.addAction(toggle_check_action)
-        settings_menu.addAction(edit_config_action)  # Neue Aktion zum Bearbeiten der Konfigurationen
+
+
+        # Create the "About" menu
+        about_menu = menubar.addMenu("About")
+
+        # Add actions for about menu options
+        howto_action = QAction("How To Use", self.window)
+        howto_action.triggered.connect(self.show_howto)
+
+        license_action = QAction("License", self.window)
+        license_action.triggered.connect(self.show_license)
+
+        about_action = QAction("About Buttertoast", self.window)
+        about_action.triggered.connect(self.show_about)
+
+        list_action = QAction("List plugins", self.window)
+        list_action.triggered.connect(self.trigger_list_data)
+
+        # Add the actions to the "About" menu
+        about_menu.addAction(howto_action)
+        about_menu.addAction(license_action)
+        about_menu.addAction(about_action)
+        about_menu.addAction(list_action)
 
     def handle_dropped_file(self, file_type, file_path):
         """Processes the dropped file based on its type."""
@@ -307,11 +332,10 @@ class GUI(BaseUI):
 
     def toggle_gui(self):
         """Umschalten der grafischen Benutzeroberfläche."""
-        confirm = self.display_confirmation_dialog("Changing the user interface will restart the program immediately. Do you want to continue?")
+        confirm = self.display_confirmation_dialog("Changing the user interface requires a program restart. Do you want to continue?")
         if confirm:
             self.event_manager.trigger_event("change_ui", None)
-            self.display_message("The program will now restart...", "info")
-            self.close_window()  # Schließt das Fenster und startet das Programm neu
+            self.close_window()  
         else:
             self.display_message("UI change canceled. Returning to the settings menu...", "info")
 
@@ -331,77 +355,139 @@ class GUI(BaseUI):
     def close_window(self):
         """Schließt das aktuelle Fenster."""
         self.window.close()
-
-    def edit_config(self):
-        """Zeigt ein Dialogfenster zum Bearbeiten der Konfigurationen."""
-        # Ein einfaches Dialogfenster zur Konfiguration
-        config_dialog = QDialog(self.window)
-        config_dialog.setWindowTitle("Edit Configurations")
-        
-        layout = QVBoxLayout()
-
-        # Beispiel: GUI aktivieren/deaktivieren
-        self.gui_checkbox = QCheckBox("Enable Graphical User Interface", config_dialog)
-        self.gui_checkbox.setChecked(self.engine.load_config().get("gui", False))
-        layout.addWidget(self.gui_checkbox)
-
-        # Beispiel: Verbose aktivieren/deaktivieren
-        self.verbose_checkbox = QCheckBox("Enable Verbose Mode", config_dialog)
-        self.verbose_checkbox.setChecked(self.engine.load_config().get("verbose", False))
-        layout.addWidget(self.verbose_checkbox)
-
-        # Beispiel: Auto-Check aktivieren/deaktivieren
-        self.check_checkbox = QCheckBox("Enable Auto-Check", config_dialog)
-        self.check_checkbox.setChecked(self.engine.load_config().get("check", False))
-        layout.addWidget(self.check_checkbox)
-
-        # Bestätigungsbutton zum Anwenden der Änderungen
-        apply_button = QPushButton("Apply Changes", config_dialog)
-        apply_button.clicked.connect(self.apply_config_changes)
-        layout.addWidget(apply_button)
-
-        config_dialog.setLayout(layout)
-        config_dialog.exec()
-
-    def apply_config_changes(self):
-        """Wendet die Änderungen an den Konfigurationen an."""
-        new_config = {
-            "gui": self.gui_checkbox.isChecked(),
-            "verbose": self.verbose_checkbox.isChecked(),
-            "check": self.check_checkbox.isChecked()
-        }
-
-        # Speichern der neuen Konfiguration und Auslösen der Events
-        self.engine.save_config(new_config)
-        self.event_manager.trigger_event("update_config", new_config)
-        self.display_message("Configurations have been updated.", "info")
-
-        # Bestätigungsnachricht anzeigen
-        self.display_message("The settings have been updated successfully.", "info")
-
    
     def show_howto(self):
         """
         Menu for displaying the instructions.
         """
-        pass
-
+        self.display_file_in_dialog('buttertoast/doc/howto.md', "How To Use")
 
     def show_license(self):
         """
         Menu for displaying the license.
         """
-        pass
-
+        self.display_file_in_dialog('buttertoast/doc/LICENSE', "License")
 
     def show_about(self):
         """
         Menu for displaying the about information.
         """
-        pass
+        self.display_file_in_dialog('buttertoast/doc/about.md', "About Buttertoast")
 
+    def trigger_list_data(self):
+        """
+        Triggers the 'list_data' event to list available data.
+
+        """
+        if not self.toggle_log_button.isChecked():  # Ensure the button is in 'checked' state
+            self.toggle_log_button.setChecked(True)  # Force the expansion
+            self.toggle_log_window()  # Expand the log window
+        self.event_manager.trigger_event("list_data", None)
+
+    def display_file_in_dialog(self, file_path, title):
+        """
+        Reads a file and displays its content in a dialog box with formatted text (Markdown).
         
+        Args:
+            file_path (str): The path to the file to be displayed.
+            title (str): The title of the dialog box.
+        """
+        try:
+            with open(file_path, 'r') as file:
+                content = file.read()
+
+            # Convert Markdown content to HTML
+            html_content = self.convert_markdown_to_html(content)
+
+            # Create a dialog to display the formatted content
+            dialog = QDialog(self.window)
+            dialog.setWindowTitle(title)
+
+            # Create a QTextEdit to display the formatted HTML content
+            text_edit = QTextEdit(dialog)
+            text_edit.setHtml(html_content)
+            text_edit.setReadOnly(True)  # Make the text read-only
+
+            # Set a font for better readability
+            font = QFont("Arial", 10)
+            text_edit.setFont(font)
+
+            # Create a button to close the dialog
+            close_button = QPushButton("Close", dialog)
+            close_button.clicked.connect(dialog.accept)
+
+            # Layout for the dialog
+            layout = QVBoxLayout(dialog)
+            layout.addWidget(text_edit)
+            layout.addWidget(close_button)
+
+            dialog.setLayout(layout)
+
+            # Calculate minimum and maximum sizes
+            min_width = 600  # Minimum width (for readability)
+            min_height = 300  # Minimum height
+
+            # Calculate the content height (approximate)
+            content_length = len(html_content)
+            calculated_height = content_length // 10  # Adjust based on content size
+            min_height = max(min_height, calculated_height)  # Ensure minimum height is at least the content's height
+
+            # Set the minimum size for the dialog
+            dialog.setMinimumWidth(min_width)
+            dialog.setMinimumHeight(min_height)
+
+            # Set the maximum size for the dialog (800x600)
+            dialog.setMaximumWidth(800)
+            dialog.setMaximumHeight(600)
+
+            # Get the screen size using QScreen (PySide6)
+            screen_geometry = QApplication.primaryScreen().availableGeometry()
+            screen_width = screen_geometry.width()
+            screen_height = screen_geometry.height()
+
+            # Ensure the dialog size is within the bounds of the screen
+            dialog.setFixedSize(min(screen_width, 800), min(screen_height, 600))
+
+            # Show the dialog
+            dialog.exec_()
+
+        except FileNotFoundError:
+            self.ui.display_message(f"Error: The file at {file_path} could not be found.", "error")
+        except Exception as e:
+            self.ui.display_message(f"An error occurred: {e}", "error")
+
+        except FileNotFoundError:
+            self.ui.display_message(f"Error: The file at {file_path} could not be found.", "error")
+        except Exception as e:
+            self.ui.display_message(f"An error occurred: {e}", "error")
+
+    def convert_markdown_to_html(self, markdown_text):
+        """
+        Converts a Markdown text to HTML.
+
+        Args:
+            markdown_text (str): The Markdown content to convert.
+
+        Returns:
+            str: The HTML-formatted text.
+        """
+        try:
+            # Using a library like mistune or markdown to convert Markdown to HTML
+            html_content = markdown.markdown(markdown_text)
+            return html_content
+        except ImportError:
+            self.ui.display_message("Markdown library not found. Please install it to display Markdown.", "error")
+            return markdown_text  # Fallback to plain text if the library is not available
+        except Exception as e:
+            self.ui.display_message(f"Error converting Markdown to HTML: {e}", "error")
+            return markdown_text  # Return the plain text if there's an error
 
     def run(self):
         """Starts the GUI."""
         self.app.exec()
+
+    def edit_config(self):
+        """
+        replaced by options menu
+        """
+        pass

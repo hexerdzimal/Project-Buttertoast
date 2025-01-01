@@ -221,10 +221,10 @@ class Engine:
 
     def on_process_data(self, data):
         """
-        Event-Handler für das 'process_data'-Event.
+        Event handler for the 'process_data' event.
 
         Args:
-            data (dict): Daten, die von der UI übergeben wurden.
+            data (dict): Data passed from the UI.
         """
         try:
             host = data["host"]
@@ -232,21 +232,22 @@ class Engine:
             password = data["password"]
             output = data["output"]
 
-            # Dateien einlesen und Verarbeitung starten
+            # Read files and start processing
             host_bytecode = self.read_file_as_bytecode(host)
             volume_bytecode = self.read_file_as_bytecode(volume)
             self.process_data(host, host_bytecode, volume_bytecode, password, output)
 
         except Exception as e:
             # Display error message to UI
-            self.ui.display_message(f"Fehler: {str(e)}", "error")
+            self.ui.display_message(f"Error: {str(e)}", "error")
 
     def on_list_data(self, _):
         try:
-            plugin_loader = PluginLoader(directory="plugins", ui=self.ui)  # Hier übergibst du die UI-Instanz
-            plugin_loader.list_plugins()  # Diese Methode listet die Plugins
+            plugin_loader = PluginLoader(directory="plugins", ui=self.ui)  # Pass the UI instance here
+            plugin_loader.list_plugins()  
         except Exception as e:
-            print(f"Fehler beim Auflisten der Plugins: {e}")
+            print(f"Error listing plugins: {e}")
+
 
     def on_change_ui(self, _):
         """
