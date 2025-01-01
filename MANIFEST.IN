@@ -1,0 +1,3 @@
+include buttertoast/doc/LICENSE
+include buttertoast/doc/howto.md
+include buttertoast/doc/about.md
