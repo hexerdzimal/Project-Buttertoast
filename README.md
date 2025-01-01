@@ -53,6 +53,10 @@ To start the application, run the following command:
   ```bash
   buttertoast
   ```
+in this mode you can either start the UI or use its CLI with 
+```bash
+buttertoast -cli <HostPath> <TCVolumePath> <password> <PolyglotNameAndPath>
+```
 
   The first time you run the application, it will start in the terminal user interface (TUI). You can set preferences in the settings to launch with the desired UI (GUI or TUI) in the future.
 
@@ -77,6 +81,16 @@ To start the application, run the following command:
 6. **Check input** You can now check the input and change something by entering the according number, or: 
 7. **Start the Process**: Select "Start data processing" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. The file can also be mounted in TrueCrypt. 
 
+### Hiding a TrueCrypt Container (CLI)
+
+use
+```bash
+buttertoast -cli <HostPath> <TCVolumePath> <password> <PolyglotNameAndPath>
+```
+You also can activate a verbose mode by adding -v if you want to:
+```bash
+buttertoast -cli -v <HostPath> <TCVolumePath> <password> <PolyglotNameAndPath>
+```
 
 **Note**: No data is stored, corrupted, or shared. The password is only used to modify the container header and is not saved.
 
