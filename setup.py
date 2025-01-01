@@ -51,7 +51,7 @@ setup(
         "pyinstaller==6.11.1",
         "pyside6==6.8.0.2",
         "pytest==8.3.4",
-        "rich==13.9.4"
+        "rich==13.9.4",
         "tomli==2.0.1",
         "yarg==0.1.10",
     ],
