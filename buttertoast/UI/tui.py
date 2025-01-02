@@ -20,6 +20,7 @@ import getpass
 import importlib.resources
 from rich.console import Console
 from rich.markdown import Markdown
+import sys
 
 class TUI(BaseUI):
     def __init__(self, engine, event_manager):
@@ -178,13 +179,13 @@ class TUI(BaseUI):
 
             if choice == "1":
             # Confirm change and restart
-                print("\033[38;5;214m\nChanging the user interface will restart the program immediately.\033[0m")
+                print("\033[38;5;214m\nChanging the user interface requires a restart.\033[0m")
                 confirm = input("Do you want to continue? (y/n): ").strip().lower()
 
                 if confirm == "y":
                     # Trigger the event to change the user interface
                     self.event_manager.trigger_event("change_ui", None)
-                    self.display_message("The program will now restart...", "info")
+                    sys.exit(0)
                     return
                 else:
                     self.display_message("UI change canceled. Returning to the settings menu...", "info")
