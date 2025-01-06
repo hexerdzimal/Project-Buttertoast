@@ -65,6 +65,8 @@ class GUI(BaseUI):
         self.guest_file = None
         self.save_location = None
         self.event_manager =event_manager
+        config = self.engine.load_config()
+        self.verbose = config.get("verbose", False)
 
         if not QApplication.instance():
             self.app = QApplication(sys.argv)
@@ -325,7 +327,8 @@ class GUI(BaseUI):
             self.log_output.append(f"[INFO] {message}")
             QMessageBox.information(self.window, "Information", message)
         elif message_type == "verbose":
-            self.log_output.append(f"[VERBOSE] {message}")
+            if self.verbose:
+                self.log_output.append(f"[VERBOSE] {message}")
         elif message_type == "error":
             self.log_output.append(f"[ERROR] {message}")
             QMessageBox.critical(self.window, "Error", message)
@@ -357,7 +360,7 @@ class GUI(BaseUI):
         return reply == QMessageBox.Yes
 
     def close_window(self):
-        """Schließt das aktuelle Fenster."""
+        """Closes window."""
         self.window.close()
    
     def show_howto(self):
@@ -397,9 +400,9 @@ class GUI(BaseUI):
             title (str): The title of the dialog box.
         """
         try:
-            # Zugriff auf die Datei im Paket "buttertoast.doc"
+            # access imported "buttertoast.doc"
             with importlib.resources.path("buttertoast.doc", file_name) as file_path:
-                # Die Datei öffnen und den Inhalt lesen
+                # Open file and read
                 with open(file_path, 'r') as file:
                     content = file.read()
 
