@@ -152,7 +152,7 @@ class TUI(BaseUI):
         """
         while True:
             # Load current configuration using the get_config method
-            config = self.engine.load_config()  # Here, we call get_config to retrieve the configuration
+            config = self.engine.load_config()  # Here we call get_config to retrieve the configuration
 
             # Determine the status of the configurations
             gui_status = "[active]" if config.get("gui", False) else "[inactive]"
@@ -270,12 +270,12 @@ class TUI(BaseUI):
         :param resource_path: The path to the file to be displayed (relative to the package)
         """
         try:
-            # Zugriff auf die Datei im Paket
+            # Access file at resource path
             with importlib.resources.path("buttertoast.doc", resource_path) as file_path:
                 with open(file_path, 'r') as file:
                     md_content = file.read()
 
-            # Markdown-Inhalt rendern und anzeigen
+            # erender markdown and show
             markdown = Markdown(md_content)
             self.console.print(markdown, width=80)
 

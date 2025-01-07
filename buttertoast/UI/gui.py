@@ -434,13 +434,13 @@ class GUI(BaseUI):
             dialog.setLayout(layout)
 
             # Calculate minimum and maximum sizes
-            min_width = 600  # Minimum width (for readability)
+            min_width = 600  # Minimum width 
             min_height = 300  # Minimum height
 
             # Calculate the content height (approximate)
             content_length = len(html_content)
             calculated_height = content_length // 10  # Adjust based on content size
-            min_height = max(min_height, calculated_height)  # Ensure minimum height is at least the content's height
+            min_height = max(min_height, calculated_height)  # Ensure minimum height is at least the contents height
 
             # Set the minimum size for the dialog
             dialog.setMinimumWidth(min_width)
@@ -450,7 +450,7 @@ class GUI(BaseUI):
             dialog.setMaximumWidth(800)
             dialog.setMaximumHeight(600)
 
-            # Get the screen size using QScreen (PySide6)
+            # Get the screen size using QScreen
             screen_geometry = QApplication.primaryScreen().availableGeometry()
             screen_width = screen_geometry.width()
             screen_height = screen_geometry.height()

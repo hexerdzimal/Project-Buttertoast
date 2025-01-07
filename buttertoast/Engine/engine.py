@@ -17,7 +17,6 @@
 
 
 import os
-import sys
 import json
 from buttertoast.Utilities.try_tchuntng import run_tchuntng, check_tchuntng
 from buttertoast.Engine.plugin_Loader import PluginLoader
@@ -58,7 +57,7 @@ class Engine:
     
     def save_config(self):
         """
-        Speichert die geänderte Konfiguration zurück in die Konfigurationsdatei.
+        Saves configuration to a config.json file.
         """
 
         with open(self.CONFIG_PATH, "w") as file:
