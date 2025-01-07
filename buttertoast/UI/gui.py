@@ -16,14 +16,20 @@
 # For more information, contact: mail@matthias-ferstl.de
 
 
-from UI.BaseUI import BaseUI
-from PySide6.QtCore import QPropertyAnimation, Qt
-from PySide6.QtGui import QPixmap, QIcon
+from buttertoast.UI.BaseUI import BaseUI
+from PySide6.QtCore import QPropertyAnimation
+from PySide6.QtGui import QPixmap, QIcon, QAction, QFont
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout,
-    QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox
+    QWidget, QMessageBox, QLineEdit, QFileDialog, QHBoxLayout, QTextEdit, QCheckBox, QDialog
 )
 import sys
+import markdown
+import importlib.resources
+
+# Zugriff auf die Ressourcen im Paket buttertoast
+with importlib.resources.path("buttertoast.res", "BuToTransp.png") as logo_path:
+    LOGO_PATH = str(logo_path)
 
 class FileButton(QPushButton):
     """A custom button that supports drag-and-drop functionality."""
@@ -48,14 +54,19 @@ class FileButton(QPushButton):
             if self.drop_handler: # If a handler is defined
                 self.drop_handler(file_path)
 
+    
+
 class GUI(BaseUI):
     def __init__(self, engine, event_manager):
-        super().__init__(engine, event_manager)
+        super().__init__(engine)
 
         # Attributes for files and save locations
         self.host_file = None
         self.guest_file = None
         self.save_location = None
+        self.event_manager =event_manager
+        config = self.engine.load_config()
+        self.verbose = config.get("verbose", False)
 
         if not QApplication.instance():
             self.app = QApplication(sys.argv)
@@ -64,17 +75,19 @@ class GUI(BaseUI):
 
         # Create main window
         self.window = QMainWindow()
-        self.window.setWindowTitle("Buttertoast")
-        self.window.setGeometry(100, 100, 600, 600)
+        self.window.setWindowTitle("Buttertoast. The melting pot for polyglot")
+        self.window.setGeometry(100, 100, 600, 700)
 
         # Create central widget
         central_widget = QWidget()
         self.window.setCentralWidget(central_widget)
-        self.window.setWindowIcon(QIcon("res/BuToTransp.png"))
+        self.window.setWindowIcon(QIcon(LOGO_PATH))
+
+        self.create_menu()
 
         # Add background image
         self.background_label = QLabel(central_widget)
-        self.background_label.setPixmap(QPixmap("res/BuToTransp.png"))
+        self.background_label.setPixmap(QPixmap(LOGO_PATH))
         self.background_label.setScaledContents(True)
         self.background_label.setGeometry(0, 0, 600, 600)
 
@@ -169,6 +182,58 @@ class GUI(BaseUI):
         self.log_output.setMaximumHeight(0)
         self.toggle_log_button.setChecked(False)
 
+    def create_menu(self):
+        """
+        Creates the menu with options for the application.
+
+        This method initializes the menu bar, adds settings and about menus, 
+        and links the menu actions to their respective handlers.
+        """
+        # Menu bar
+        menubar = self.window.menuBar()
+
+        # Create the "Settings" menu
+        settings_menu = menubar.addMenu("Settings")
+
+        # Add actions for configuration options
+        toggle_gui_action = QAction("Toggle Graphical User Interface", self.window)
+        toggle_gui_action.triggered.connect(self.toggle_gui)
+
+        toggle_verbose_action = QAction("Toggle Verbose Mode", self.window)
+        toggle_verbose_action.triggered.connect(self.toggle_verbose)
+
+        toggle_check_action = QAction("Toggle Auto-Check", self.window)
+        toggle_check_action.triggered.connect(self.toggle_check)
+
+
+        # Add the actions to the "Settings" menu
+        settings_menu.addAction(toggle_gui_action)
+        settings_menu.addAction(toggle_verbose_action)
+        settings_menu.addAction(toggle_check_action)
+
+
+        # Create the "About" menu
+        about_menu = menubar.addMenu("About")
+
+        # Add actions for about menu options
+        howto_action = QAction("How To Use", self.window)
+        howto_action.triggered.connect(self.show_howto)
+
+        license_action = QAction("License", self.window)
+        license_action.triggered.connect(self.show_license)
+
+        about_action = QAction("About Buttertoast", self.window)
+        about_action.triggered.connect(self.show_about)
+
+        list_action = QAction("List plugins", self.window)
+        list_action.triggered.connect(self.trigger_list_data)
+
+        # Add the actions to the "About" menu
+        about_menu.addAction(howto_action)
+        about_menu.addAction(license_action)
+        about_menu.addAction(about_action)
+        about_menu.addAction(list_action)
+
     def handle_dropped_file(self, file_type, file_path):
         """Processes the dropped file based on its type."""
         if file_type == "Host":
@@ -262,7 +327,8 @@ class GUI(BaseUI):
             self.log_output.append(f"[INFO] {message}")
             QMessageBox.information(self.window, "Information", message)
         elif message_type == "verbose":
-            self.log_output.append(f"[VERBOSE] {message}")
+            if self.verbose:
+                self.log_output.append(f"[VERBOSE] {message}")
         elif message_type == "error":
             self.log_output.append(f"[ERROR] {message}")
             QMessageBox.critical(self.window, "Error", message)
@@ -270,10 +336,168 @@ class GUI(BaseUI):
             self.log_output.append(f"{message}")
         else:
             self.log_output.append(f"[UNKNOWN] {message}")
+
+    def toggle_gui(self):
+        """Umschalten der grafischen Benutzeroberfläche."""
+        confirm = self.display_confirmation_dialog("Changing the user interface requires a program restart. Do you want to continue?")
+        if confirm:
+            self.event_manager.trigger_event("change_ui", None)
+            self.close_window()  
+        else:
+            self.display_message("UI change canceled. Returning to the settings menu...", "info")
+
+    def toggle_verbose(self):
+        """Umschalten des verbose-Modus."""
+        self.event_manager.trigger_event("change_verbose", None)
+
+    def toggle_check(self):
+        """Umschalten der Auto-Check-Option."""
+        self.event_manager.trigger_event("change_check", None)
+
+    def display_confirmation_dialog(self, message):
+        """Bestätigungsdialog anzeigen."""
+        reply = QMessageBox.question(self.window, "Confirm", message, QMessageBox.Yes | QMessageBox.No)
+        return reply == QMessageBox.Yes
+
+    def close_window(self):
+        """Closes window."""
+        self.window.close()
+   
+    def show_howto(self):
+        """
+        Menu for displaying the instructions.
+        """
+        self.display_file_in_dialog('howto.md', "How To Use")
+
+    def show_license(self):
+        """
+        Menu for displaying the license.
+        """
+        self.display_file_in_dialog('LICENSE', "License")
+
+    def show_about(self):
+        """
+        Menu for displaying the about information.
+        """
+        self.display_file_in_dialog('about.md', "About Buttertoast")
+
+    def trigger_list_data(self):
+        """
+        Triggers the 'list_data' event to list available data.
+
+        """
+        if not self.toggle_log_button.isChecked():  # Ensure the button is in 'checked' state
+            self.toggle_log_button.setChecked(True)  # Force the expansion
+            self.toggle_log_window()  # Expand the log window
+        self.event_manager.trigger_event("list_data", None)
+
+    def display_file_in_dialog(self, file_name, title):
+        """
+        Reads a file and displays its content in a dialog box with formatted text (HTML).
         
-    def edit_config():
-        pass
+        Args:
+            file_name (str): The name of the file to be displayed (relative to the package).
+            title (str): The title of the dialog box.
+        """
+        try:
+            # access imported "buttertoast.doc"
+            with importlib.resources.path("buttertoast.doc", file_name) as file_path:
+                # Open file and read
+                with open(file_path, 'r') as file:
+                    content = file.read()
+
+            # Convert Markdown content to HTML
+            html_content = self.convert_markdown_to_html(content)
+
+            # Create a dialog to display the formatted content
+            dialog = QDialog(self.window)
+            dialog.setWindowTitle(title)
+
+            # Create a QTextEdit to display the formatted HTML content
+            text_edit = QTextEdit(dialog)
+            text_edit.setHtml(html_content)
+            text_edit.setReadOnly(True)  # Make the text read-only
+
+            # Set a font for better readability
+            font = QFont("Arial", 10)
+            text_edit.setFont(font)
+
+            # Create a button to close the dialog
+            close_button = QPushButton("Close", dialog)
+            close_button.clicked.connect(dialog.accept)
+
+            # Layout for the dialog
+            layout = QVBoxLayout(dialog)
+            layout.addWidget(text_edit)
+            layout.addWidget(close_button)
+
+            dialog.setLayout(layout)
+
+            # Calculate minimum and maximum sizes
+            min_width = 600  # Minimum width 
+            min_height = 300  # Minimum height
+
+            # Calculate the content height (approximate)
+            content_length = len(html_content)
+            calculated_height = content_length // 10  # Adjust based on content size
+            min_height = max(min_height, calculated_height)  # Ensure minimum height is at least the contents height
+
+            # Set the minimum size for the dialog
+            dialog.setMinimumWidth(min_width)
+            dialog.setMinimumHeight(min_height)
+
+            # Set the maximum size for the dialog (800x600)
+            dialog.setMaximumWidth(800)
+            dialog.setMaximumHeight(600)
+
+            # Get the screen size using QScreen
+            screen_geometry = QApplication.primaryScreen().availableGeometry()
+            screen_width = screen_geometry.width()
+            screen_height = screen_geometry.height()
+
+            # Ensure the dialog size is within the bounds of the screen
+            dialog.setFixedSize(min(screen_width, 800), min(screen_height, 600))
+
+            # Show the dialog
+            dialog.exec_()
+
+        except FileNotFoundError:
+            self.ui.display_message(f"Error: The file at {file_path} could not be found.", "error")
+        except Exception as e:
+            self.ui.display_message(f"An error occurred: {e}", "error")
+
+        except FileNotFoundError:
+            self.ui.display_message(f"Error: The file at {file_path} could not be found.", "error")
+        except Exception as e:
+            self.ui.display_message(f"An error occurred: {e}", "error")
+
+    def convert_markdown_to_html(self, markdown_text):
+        """
+        Converts a Markdown text to HTML.
+
+        Args:
+            markdown_text (str): The Markdown content to convert.
+
+        Returns:
+            str: The HTML-formatted text.
+        """
+        try:
+            # Using a library like mistune or markdown to convert Markdown to HTML
+            html_content = markdown.markdown(markdown_text)
+            return html_content
+        except ImportError:
+            self.ui.display_message("Markdown library not found. Please install it to display Markdown.", "error")
+            return markdown_text  # Fallback to plain text if the library is not available
+        except Exception as e:
+            self.ui.display_message(f"Error converting Markdown to HTML: {e}", "error")
+            return markdown_text  # Return the plain text if there's an error
 
     def run(self):
         """Starts the GUI."""
         self.app.exec()
+
+    def edit_config(self):
+        """
+        replaced by options menu
+        """
+        pass

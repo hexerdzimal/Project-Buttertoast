@@ -1,4 +1,7 @@
-# Ignore all .idea, venv and cache folders
+# Ignore all .idea, venv, build, egg-info and cache folders
+
 .idea/
 .venv/
 **/__pycache__/
+build/
+buttertoast.egg-info/

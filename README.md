@@ -20,33 +20,77 @@ With a user-friendly interface and support for a variety of file formats, **Butt
 
 First, clone the repository to your local machine:
 ```bash
-git clone https://github.com/[Your-Repo]/project-buttertoast.git
+git clone https://github.com/hexerdzimal/project-buttertoast.git
 ```
 
-### Step 2: Install Dependencies
+### Step 2a: Install Dependencies
 
 Install the required dependencies using the `requirements.txt` file:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 3: Run the Application
+### Step 3a: Run the Application
 
 To start the application, run the following command:
 
   ```bash
-  python buttertoast.py
+  python __main__.py
   ```
+
+## OR
+
+### Step 2b: Install the whole package
+Alternatively you can use the pip installer
+
+```bash
+pip install .
+```
+### Step 3b: Run the Application
+
+To start the application, run the following command:
+
+  ```bash
+  buttertoast
+  ```
+in this mode you can either start the UI or use its CLI with 
+```bash
+buttertoast -cli <HostPath> <TCVolumePath> <password> <PolyglotNameAndPath>
+```
+
   The first time you run the application, it will start in the terminal user interface (TUI). You can set preferences in the settings to launch with the desired UI (GUI or TUI) in the future.
 
 ## Usage
 
-### Hiding a TrueCrypt Container
+### Hiding a TrueCrypt Container (GUI)
 
 1. **Select the Host**: Choose the file in which you want to hide the TrueCrypt container (e.g., a WAV or PNG file).
-2. **Select the TrueCrypt Volume**:
-3. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified.
-4. **Start the Process**: Click "Execute" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. The file can also be mounted in TrueCrypt. 
+2. **Select the TrueCrypt Volume**: Choose the TrueCrypt Volume, that you want to hide
+3. **Select the output filename and path**: Choose the path and filename of the polyglot file that will be generated
+4. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified. If you consider this "sus", check the cryptomator files, to understand the procedure.
+5. **Start the Process**: Click "Execute" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. The file can also be mounted in TrueCrypt.
+
+
+### Hiding a TrueCrypt Container (TUI)
+
+1. **Select option 1 in the main menu**: to navigate to the main funcionality.
+2. **Select the host file** Choose the host file that sould contain the tc-volume after buttertoasting it.
+3. **Select the TrueCrypt Volume**: Choose the TrueCrypt Volume, that you want to hide
+4. **Provide the Password**: Enter the password that was used to create the TrueCrypt volume. This is necessary because the header of the container needs to be modified. If you consider this "sus", check the cryptomator files, to understand the procedure.
+5. **Choose polyglot filename and path**: Choose a name and folder to save the polyglot file.
+6. **Check input** You can now check the input and change something by entering the according number, or: 
+7. **Start the Process**: Select "Start data processing" to embed the container into the selected file. The file will remain usable as the original format while secretly containing the encrypted container. The file can also be mounted in TrueCrypt. 
+
+### Hiding a TrueCrypt Container (CLI)
+
+use
+```bash
+buttertoast -cli <HostPath> <TCVolumePath> <password> <PolyglotNameAndPath>
+```
+You also can activate a verbose mode by adding -v if you want to:
+```bash
+buttertoast -cli -v <HostPath> <TCVolumePath> <password> <PolyglotNameAndPath>
+```
 
 **Note**: No data is stored, corrupted, or shared. The password is only used to modify the container header and is not saved.
 
@@ -56,6 +100,17 @@ To start the application, run the following command:
 The application supports plugins to extend its functionality. You can add new plugins for additional file types by placing them in the `plugins` directory. 
 
 - **Plugin Development**: While creating plugins requires basic Python knowledge, it also requires an understanding of how to hide data within the bytecode of files. This is not a trivial task and requires a deeper understanding of file structures and byte-level manipulation.
+
+## Preferences
+
+You can change these preferences:
+- **usage of the gui**: if false, you will use the textbased user interface
+- **verbose-mode**: if true you will get additional info what the tool is actually doing
+- **auto-check**: if true (please pay attention to the info below) the generated polyglot file will be checked by `tchungnt` automatically. You will get the vital information about the outcome.
+
+## tchuntng-autocheck
+
+This tool uses the `subprocess` library to start and use other processes. If you have installed and added `tchungnt` to your system and PATH, buttertoast is able to use `tchungnt` to check if your generated file is considered "encrypted" by `tchungnt`. 
 
 ## Security
 
@@ -69,45 +124,34 @@ The application supports plugins to extend its functionality. You can add new pl
 - **Dependencies**: The necessary libraries are listed in `requirements.txt`. Key libraries include:
    - `cryptography` for secure encryption
    - `Pillow` for image handling
-   - `requests` for network requests
+   - `PySide6` for the gui
+   - `importlib` to make the plugins work
    - and more.
 - **Supported Operating Systems**: Any OS that can run Python 3.x (Windows, macOS, Linux)
 
 ### Key Dependencies:
-```txt
-altgraph==0.17.4
-certifi==2024.8.30
-cffi==1.17.1
-charset-normalizer==3.4.0
-click==8.1.7
-colorama==0.4.6
+```
+backports.tarfile==1.2.0
 cryptography==43.0.3
+docopt==0.6.2
 fpdf==1.7.2
-idna==3.10
-iniconfig==2.0.0
-Jinja2==3.1.4
-MarkupSafe==3.0.2
-packaging==24.2
-pefile==2023.2.7
+importlib-metadata==8.0.0
+jaraco.collections==5.1.0
+jinja2==3.1.4
 pillow==11.0.0
-pluggy==1.5.0
-pycparser==2.22
+platformdirs==4.2.2
 pyinstaller==6.11.1
-pyinstaller-hooks-contrib==2024.10
-PySide6==6.8.0.2
-PySide6_Addons==6.8.0.2
-PySide6_Essentials==6.8.0.2
+pyside6==6.8.0.2
 pytest==8.3.4
-pywin32-ctypes==0.2.3
-requests==2.32.3
-setuptools==75.6.0
-shiboken6==6.8.0.2
-urllib3==2.2.3
+rich==13.9.4
+tomli==2.0.1
+yarg==0.1.10
+
 ```
 
 ## Limitations
 
-- **File Formats**: TrueCrypt volumes can only be hidden in file formats for which a functioning plugin exists. Please check the available file types listed in the program itself or refer to the "plugins" folder.
+- **File Formats**: TrueCrypt volumes can only be hidden in file formats for which a functioning plugin exists. Please check the available file types in the program itself by using "List plugins" or refer to the "plugins" folder.
 - **Container Size**: Containers can be any size, but "unusually large files" (relative to their file type) may raise suspicion. For example, HTML files are typically much smaller than WAV files, so large HTML files will stand out more than large WAV files.
 - **Plugin Creation**: While the plugin system is designed to be easily extensible, creating plugins requires basic Python knowledge and a deeper understanding of bytecode manipulation and how to hide data within files.
 - **True Crypt Encryption Mode**: For now only supports AES encrypted files (SHA-512)
@@ -116,7 +160,7 @@ urllib3==2.2.3
 
 - **Multi-Language Support**: Plans to add support for multiple languages to make the application more accessible.
 - **Additional Encryption Algorithms**: Future updates may include support for other encryption algorithms.
-- **Further Features**: Ongoing development may add additional features, such as improved user interfaces or other cryptographic techniques.
+- **Further Features**: Ongoing development may add additional features, such as webbased user interfaces or other cryptographic techniques.
 
 ## Contributing
 

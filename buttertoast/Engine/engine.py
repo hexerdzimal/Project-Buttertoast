@@ -17,40 +17,24 @@
 
 
 import os
-import sys
 import json
-from Utilities.try_tchuntng import run_tchuntng, check_tchuntng
-from Engine.plugin_Loader import PluginLoader
-from UI.BaseUI import BaseUI
-from UI.tui import TUI  
-from UI.gui import GUI     
-from Crypt.cryptomat import Cryptomat
+from buttertoast.Utilities.try_tchuntng import run_tchuntng, check_tchuntng
+from buttertoast.Engine.plugin_Loader import PluginLoader
+from buttertoast.UI.CLI import CLI
+from buttertoast.UI.tui import TUI  
+from buttertoast.UI.gui import GUI     
+from buttertoast.Crypt.cryptomat import Cryptomat
 
-
-def restart_program():
-        """Restarts buttertoast"""
-        try:
-            print("Restarting Buttertoast")
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
-        except Exception as e:
-            print(f"Error restarting buttertoast: {e}")
-            sys.exit(1)
-   
 
 class Engine:
+
+    CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 
     def __init__(self, event_manager):
         self.event_manager = event_manager
         self.config = self.load_config()
         self.ui = None
 
-        # Event-Handler registrieren
-        self.event_manager.register_event("process_data", self.on_process_data)
-        self.event_manager.register_event("list_data", self.on_list_data)
-        self.event_manager.register_event("change_ui", self.on_change_ui)
-        self.event_manager.register_event("change_verbose", self.on_change_verbose)
-        self.event_manager.register_event("change_check", self.on_change_check)
 
     def load_config(self):
         """
@@ -62,25 +46,21 @@ class Engine:
         Returns:
             dict: Loaded configuration as a dictionary.
         """
-        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        config_path = os.path.join(project_root, "config.json")
 
-        if not os.path.exists(config_path):
-            raise FileNotFoundError(f"The configuration file {config_path} was not found.")
+        if not os.path.exists(self.CONFIG_PATH):
+            raise FileNotFoundError(f"The configuration file {self.CONFIG_PATH} was not found.")
         
-        with open(config_path, "r") as file:
+        with open(self.CONFIG_PATH, "r") as file:
             config = json.load(file)
         
         return config
     
     def save_config(self):
         """
-        Speichert die geänderte Konfiguration zurück in die Konfigurationsdatei.
+        Saves configuration to a config.json file.
         """
-        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        config_path = os.path.join(project_root, "config.json")
-        
-        with open(config_path, "w") as file:
+
+        with open(self.CONFIG_PATH, "w") as file:
             json.dump(self.config, file, indent=4)
     
     def select_ui(self):
@@ -208,11 +188,18 @@ class Engine:
 
     def start(self):
         """
-        Starts the engine, initializes the UI, and links it to the engine.
+        Starts the engine, registers the handler, initializes the UI, and links it to the engine.
 
         Raises:
             Exception: If there is an error during engine initialization or UI startup.
         """
+        # register handler
+        self.event_manager.register_event("process_data", self.on_process_data)
+        self.event_manager.register_event("list_data", self.on_list_data)
+        self.event_manager.register_event("change_ui", self.on_change_ui)
+        self.event_manager.register_event("change_verbose", self.on_change_verbose)
+        self.event_manager.register_event("change_check", self.on_change_check)
+
         try:
             self.select_ui()
             self.ui.run()
@@ -223,32 +210,78 @@ class Engine:
 
     def on_process_data(self, data):
         """
-        Event-Handler für das 'process_data'-Event.
+        Event handler for the 'process_data' event. Also used if tool is runned as CLI
 
         Args:
-            data (dict): Daten, die von der UI übergeben wurden.
+            data (dict): Data passed from the UI.
         """
+
         try:
             host = data["host"]
             volume = data["volume"]
             password = data["password"]
             output = data["output"]
 
-            # Dateien einlesen und Verarbeitung starten
+            # Read files and start processing
             host_bytecode = self.read_file_as_bytecode(host)
             volume_bytecode = self.read_file_as_bytecode(volume)
             self.process_data(host, host_bytecode, volume_bytecode, password, output)
+            return
 
         except Exception as e:
             # Display error message to UI
-            self.ui.display_message(f"Fehler: {str(e)}", "error")
+            self.ui.display_message(f"Error: {str(e)}", "error")
+
+
+    def process_data_cli(self, data, verbose):
+        """
+        Event handler for the 'process_data' event when the tool is run in CLI mode.
+
+        Args:
+            data (dict): Data passed from the CLI.
+            verbose (bool): Flag to enable verbose output.
+        """
+        self.ui = CLI(verbose)
+        if verbose:
+            print("Verbose mode enabled.")
+            print("Starting the processing of data in CLI mode...")
+
+        try:
+            host = data["host"]
+            volume = data["volume"]
+            password = data["password"]
+            output = data["output"]
+
+            if verbose:
+                print(f"Host file: {host}")
+                print(f"Volume file: {volume}")
+                print(f"Password: {password}")
+                print(f"Output file: {output}")
+
+            # Read files and start processing
+            host_bytecode = self.read_file_as_bytecode(host)
+            volume_bytecode = self.read_file_as_bytecode(volume)
+
+            if verbose:
+                print(f"Read host file: {host}")
+                print(f"Read volume file: {volume}")
+
+            self.process_data(host, host_bytecode, volume_bytecode, password, output)
+
+            if verbose:
+                print(f"Processing complete. Output saved to {output}")
+
+        except Exception as e:
+            # Handle errors and output to the console
+            print(f"Error during processing: {str(e)}")
 
     def on_list_data(self, _):
         try:
-            plugin_loader = PluginLoader(directory="plugins", ui=self.ui)  # Hier übergibst du die UI-Instanz
-            plugin_loader.list_plugins()  # Diese Methode listet die Plugins
+            plugin_loader = PluginLoader(directory="plugins", ui=self.ui)  # Pass the UI instance here
+            plugin_loader.list_plugins()  
         except Exception as e:
-            print(f"Fehler beim Auflisten der Plugins: {e}")
+            print(f"Error listing plugins: {e}")
+
 
     def on_change_ui(self, _):
         """
@@ -256,19 +289,22 @@ class Engine:
         Toggles the value of the 'gui' parameter in the config.json.
         """
         try:
-            # Toggle the value of 'gui'
-            self.config["gui"] = not self.config.get("gui", False)
+            # Get the current value of 'gui' and toggle it
+            current_gui = self.config.get("gui", False)
+            self.config["gui"] = not current_gui
 
             # Save the updated configuration
             self.save_config()
 
             # Output confirmation message
             new_value = "enabled" if self.config["gui"] else "disabled"
-            self.ui.display_message(f"GUI has been {new_value}.", "info")
-            restart_program()
+            self.ui.display_message(f"GUI has been {new_value}.", "verbose")
+
+            
+            self.ui.display_message("Please manually restart the program to apply changes.", "info")
+
         except Exception as e:
-            # Display error message to UI
-            self.ui.display_message(f"Error toggling the 'gui' value: {e}", "error")
+            self.ui.display_message(f"Error while changing UI: {e}", "error")
 
     def on_change_verbose(self, _):
         """
@@ -309,7 +345,7 @@ class Engine:
 
            # Output confirmation message
             new_value = "enabled" if self.config["check"] else "disabled"
-            self.ui.display_message(f"Checking of generated polyglot has been {new_value}.", "info")
+            self.ui.display_message(f"Checking of generated polyglot has been {new_value}.", "verbose")
 
         except Exception as e:
             # Fehlermeldung ausgeben
