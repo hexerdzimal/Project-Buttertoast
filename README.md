@@ -20,7 +20,7 @@ With a user-friendly interface and support for a variety of file formats, **Butt
 
 First, clone the repository to your local machine:
 ```bash
-git clone https://github.com/[Your-Repo]/project-buttertoast.git
+git clone https://github.com/hexerdzimal/project-buttertoast.git
 ```
 
 ### Step 2a: Install Dependencies
@@ -110,7 +110,7 @@ You can change these preferences:
 
 ## tchuntng-autocheck
 
-This tool uses the `subprocess` library to start and use other processes. If you have added `tchungnt` to your system and PATH, buttertoast is able to use `tchungnt` to check if your generated file is considered "encrypted" by `tchungnt`. 
+This tool uses the `subprocess` library to start and use other processes. If you have installed and added `tchungnt` to your system and PATH, buttertoast is able to use `tchungnt` to check if your generated file is considered "encrypted" by `tchungnt`. 
 
 ## Security
 
