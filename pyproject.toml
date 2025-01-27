@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Buttertoast"
+version = "1.0.0"
+description = "A tool to hide TrueCrypt container in polyglot-files"
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+    { name = "Matthias Ferstl", email = "mail@matthias-ferstl.de" },
+    { name = "Fabian Kozlowski" },
+    { name = "Stefan Leippe" },
+    { name = "Malte Muthesius" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+keywords = ["security", "utilities", "truecrypt", "polyglot"]
+classifiers = [
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: GNU V. 3 License",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+    "Topic :: Utilities",
+    "Development Status :: 5 - Production/Stable"
+]
+dependencies = [
+    "backports.tarfile==1.2.0",
+    "cryptography==43.0.3",
+    "docopt==0.6.2",
+    "fpdf==1.7.2",
+    "importlib-metadata==8.0.0",
+    "jaraco.collections==5.1.0",
+    "jinja2==3.1.4",
+    "markdown==3.7",
+    "pillow==11.0.0",
+    "platformdirs==4.2.2",
+    "pyinstaller==6.11.1",
+    "pyside6==6.8.0.2",
+    "pytest==8.3.4",
+    "rich==13.9.4",
+    "tomli==2.0.1",
+    "yarg==0.1.10"
+]
+
+[project.scripts]
+buttertoast = "buttertoast:main"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/hexerdzimal/Project-Buttertoast/issues"
+"Source Code" = "https://github.com/hexerdzimal/Project-Buttertoast"
+"License" = "https://www.gnu.org/licenses/gpl-3.0.html"
+
+[tool.setuptools.packages.find]
+include = ["buttertoast*"]

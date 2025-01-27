@@ -65,8 +65,8 @@ class GUI(BaseUI):
         self.guest_file = None
         self.save_location = None
         self.event_manager =event_manager
-        config = self.engine.load_config()
-        self.verbose = config.get("verbose", False)
+        self.load_config()
+        
 
         if not QApplication.instance():
             self.app = QApplication(sys.argv)
@@ -327,6 +327,7 @@ class GUI(BaseUI):
             self.log_output.append(f"[INFO] {message}")
             QMessageBox.information(self.window, "Information", message)
         elif message_type == "verbose":
+            self.load_config()
             if self.verbose:
                 self.log_output.append(f"[VERBOSE] {message}")
         elif message_type == "error":
@@ -497,7 +498,12 @@ class GUI(BaseUI):
         self.app.exec()
 
     def edit_config(self):
+
         """
         replaced by options menu
         """
         pass
+    
+    def load_config (self):
+        config = self.engine.load_config()
+        self.verbose = config.get("verbose", False)
