@@ -321,6 +321,8 @@ class Engine:
             # Output confirmation message
             new_value = "enabled" if self.config["verbose"] else "disabled"
             self.ui.display_message(f"Verbose has been {new_value}.", "info")
+            self.ui.display_message(f"Verbose has been {new_value}.", "verbose")
+            self.load_config()
         except Exception as e:
             # Display error message to UI
             self.ui.display_message(f"Error toggling the 'verbose' value: {e}", "error")
@@ -345,7 +347,9 @@ class Engine:
 
            # Output confirmation message
             new_value = "enabled" if self.config["check"] else "disabled"
+            self.ui.display_message(f"Auto-check has been {new_value}.", "info")
             self.ui.display_message(f"Checking of generated polyglot has been {new_value}.", "verbose")
+            self.load_config()
 
         except Exception as e:
             # Fehlermeldung ausgeben
